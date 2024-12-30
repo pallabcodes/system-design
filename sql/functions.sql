@@ -1126,3 +1126,108 @@ SELECT product_name,
            ) AS cur_next_diff
 FROM products
          INNER JOIN product_groups USING (group_id);
+
+-- Real world use cases
+
+-- CUME_DIST: Calculate the percentile of each employee's salary within their department
+SELECT 
+    employee_name,
+    department,
+    salary,
+    ROUND(CUME_DIST() OVER (PARTITION BY department ORDER BY salary)::numeric * 100, 2) as salary_percentile
+FROM employees;
+-- Example output: Shows what percentage of people in each department earn less than or equal to each employee
+
+-- DENSE_RANK: Rank products by sales volume without gaps for a sales contest
+SELECT 
+    product_name,
+    sales_volume,
+    DENSE_RANK() OVER (ORDER BY sales_volume DESC) as sales_rank
+FROM product_sales;
+-- Example output: If two products tie for first, the next product is ranked 2, not 3
+
+-- FIRST_VALUE: Display the highest paid employee in each department alongside all employees
+SELECT 
+    department,
+    employee_name,
+    salary,
+    FIRST_VALUE(employee_name) OVER (PARTITION BY department ORDER BY salary DESC) as highest_paid_employee
+FROM employees;
+-- Example output: Shows each employee with their department's highest earner for comparison
+
+-- LAG: Calculate month-over-month revenue growth percentage
+SELECT 
+    date_trunc('month', order_date) as month,
+    total_revenue,
+    ROUND(((total_revenue - LAG(total_revenue, 1) OVER (ORDER BY date_trunc('month', order_date)))
+        / LAG(total_revenue, 1) OVER (ORDER BY date_trunc('month', order_date)) * 100)::numeric, 2) as revenue_growth_pct
+FROM monthly_revenue;
+-- Example output: Shows each month's revenue with percentage growth from previous month
+
+-- LAST_VALUE: Show the most recent hire in each department alongside all employees
+SELECT 
+    department,
+    employee_name,
+    hire_date,
+    LAST_VALUE(employee_name) OVER (
+        PARTITION BY department 
+        ORDER BY hire_date 
+        RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+    ) as most_recent_hire
+FROM employees;
+-- Example output: Lists all employees with their department's newest hire
+
+-- LEAD: Predict upcoming inventory needs based on next month's historical data
+SELECT 
+    product_name,
+    month,
+    inventory_level,
+    LEAD(inventory_level, 1) OVER (PARTITION BY product_name ORDER BY month) as next_month_inventory
+FROM inventory_history;
+-- Example output: Shows current inventory with next month's levels for planning
+
+-- NTILE: Segment customers into 4 spending quartiles for marketing campaigns
+SELECT 
+    customer_name,
+    total_spending,
+    NTILE(4) OVER (ORDER BY total_spending DESC) as spending_quartile
+FROM customer_purchases;
+-- Example output: Assigns each customer to a quartile (1-4) based on spending
+
+-- NTH_VALUE: Find the third highest sale amount for each product category
+SELECT 
+    category,
+    product_name,
+    sale_amount,
+    NTH_VALUE(sale_amount, 3) OVER (
+        PARTITION BY category 
+        ORDER BY sale_amount DESC
+        RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+    ) as third_highest_sale
+FROM product_sales;
+-- Example output: Shows all sales with the third-highest amount in each category
+
+-- PERCENT_RANK: Calculate employee salary percentile across the entire company
+SELECT 
+    employee_name,
+    salary,
+    ROUND(PERCENT_RANK() OVER (ORDER BY salary)::numeric * 100, 2) as company_wide_percentile
+FROM employees;
+-- Example output: Shows each employee's salary ranking as a percentage of all employees
+
+-- RANK: Identify top 3 customers by revenue with ties allowed
+SELECT 
+    customer_name,
+    total_revenue,
+    RANK() OVER (ORDER BY total_revenue DESC) as revenue_rank
+FROM customer_revenue;
+-- Example output: If two customers tie for first, the next customer is ranked 3
+
+-- ROW_NUMBER: Assign unique identifiers to transaction records within each day
+SELECT 
+    transaction_date,
+    transaction_id,
+    amount,
+    ROW_NUMBER() OVER (PARTITION BY DATE(transaction_date) ORDER BY transaction_date) as daily_transaction_number
+FROM transactions;
+-- Example output: Numbers each transaction sequentially within its day
