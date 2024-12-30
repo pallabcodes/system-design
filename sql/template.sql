@@ -80,6 +80,56 @@ CREATE TABLE IF NOT EXISTS template_users
     CONSTRAINT uq_template_users_public_id UNIQUE (public_id)
 );
 
+-- TABLE: INSERT ON template_users
+
+INSERT INTO template_users (
+    public_id, username, email, phone, password, first_name, last_name,
+    date_of_birth, last_login_at, status, gender, is_active, is_deleted, 
+    profile_pic, bio, profile_privacy, notifications, social_links, 
+    email_notifications, sms_notifications
+) VALUES
+-- User 1
+(
+    'AB1234CD56EF', 'john_doe', 'john.doe@example.com', '1234567890', 'hashed_password_1',
+    'John', 'Doe', '1990-05-15', '2024-12-01 08:30:00', 'active', 'male', true, false,
+    'https://example.com/images/john.jpg', 'Tech enthusiast and avid reader.', 
+    'public', '{"email": true, "sms": false}', '{"linkedin": "https://linkedin.com/in/john"}', 
+    true, false
+),
+-- User 2
+(
+    'XY7890ZW12GH', 'jane_smith', 'jane.smith@example.com', '0987654321', 'hashed_password_2',
+    'Jane', 'Smith', '1992-08-25', '2024-11-30 14:45:00', 'active', 'female', true, false,
+    'https://example.com/images/jane.jpg', 'Photographer and designer.', 
+    'friends', '{"email": true, "sms": true}', '{"twitter": "https://twitter.com/jane"}', 
+    true, true
+),
+-- User 3
+(
+    'LM1234NO56PQ', 'alex_rivera', 'alex.rivera@example.com', '5678901234', 'hashed_password_3',
+    'Alex', 'Rivera', '1985-11-10', '2024-11-29 10:15:00', 'inactive', 'non-binary', false, false,
+    NULL, 'Coder and coffee lover.', 
+    'private', '{"email": false, "sms": false}', '{}', 
+    false, false
+),
+-- User 4
+(
+    'UV3456WX78YZ', 'mike_brown', 'mike.brown@example.com', '4561237890', 'hashed_password_4',
+    'Mike', 'Brown', '1988-02-20', NULL, 'suspended', 'male', false, true,
+    'https://example.com/images/mike.jpg', 'World traveler and foodie.', 
+    'public', '{"email": true, "sms": false}', '{"instagram": "https://instagram.com/mike"}', 
+    true, false
+),
+-- User 5
+(
+    'GH5678IJ90KL', 'emma_watson', 'emma.watson@example.com', '7890123456', 'hashed_password_5',
+    'Emma', 'Watson', '1995-12-05', '2024-12-02 09:00:00', 'active', 'female', true, false,
+    'https://example.com/images/emma.jpg', 'Music lover and blogger.', 
+    'public', '{"email": true, "sms": true}', '{"facebook": "https://facebook.com/emma"}', 
+    true, true
+);
+
+
 -- If often the query primarily focuses on status = 'active', a partial index is more efficient.
 CREATE INDEX IF NOT EXISTS idx_active_users on template_users where status = 'active';
 
