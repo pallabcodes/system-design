@@ -802,27 +802,148 @@ WITH RECURSIVE date_series AS (
     SELECT DATE_TRUNC('month', MIN(rental_date)) AS period
     FROM rental
     WHERE rental_date >= '2005-01-01'
-    AND rental_date < '2006-01-01'
+      AND rental_date < '2006-01-01'
 
     UNION ALL
 
     -- Recursive case: Generate subsequent months without aggregates
     SELECT period + INTERVAL '1 month'
     FROM date_series
-    WHERE period + INTERVAL '1 month' < '2006-01-01'
-)
-SELECT
-    d.period,
-    COUNT(r.rental_id) as monthly_count,
-    SUM(COUNT(r.rental_id)) OVER (ORDER BY d.period) as cumulative_count
+    WHERE period + INTERVAL '1 month' < '2006-01-01')
+SELECT d.period,
+       COUNT(r.rental_id)                               as monthly_count,
+       SUM(COUNT(r.rental_id)) OVER (ORDER BY d.period) as cumulative_count
 FROM date_series d
-LEFT JOIN rental r ON DATE_TRUNC('month', r.rental_date) = d.period
+         LEFT JOIN rental r ON DATE_TRUNC('month', r.rental_date) = d.period
 WHERE r.rental_date >= '2005-01-01'
-AND r.rental_date < '2006-01-01'
+  AND r.rental_date < '2006-01-01'
 GROUP BY d.period
 ORDER BY d.period;
 
+SELECT TIMESTAMP '2024-03-21 10:00:00' AT TIME ZONE 'UTC';
 
+--  Converting timestamp with time zone
+-- The following example uses the AT TIME ZONE operator to convert a timestamp with time zone to UTC:
+SELECT TIMESTAMP WITH TIME ZONE '2024-03-21 10:00:00-04' AT TIME ZONE 'UTC';
+
+-- Using the AT TIME ZONE operator with time zone abbreviation
+-- The following query uses the AT TIME ZONE operator to convert a timestamp to Pacific Standard Time (PST) from the default time zone:
+
+SELECT TIMESTAMP '2024-03-21 10:00:00' AT TIME ZONE 'PST';
+
+--  Converting a timestamp using a time zone offset
+
+SELECT TIMESTAMP '2024-03-21 10:00:00' AT TIME ZONE '-08:00';
+SELECT TIMESTAMP '2024-12-31 16:34:00' AT TIME ZONE '+05:30';
+
+-- Converting a timestamp using named time zones
+SELECT TIMESTAMP '2024-03-21 10:00:00' AT TIME ZONE 'America/New_York';
+-- Converting a timestamp to Indian Standard Time (Asia/Kolkata)
+SELECT TIMESTAMP '2024-03-21 10:00:00' AT TIME ZONE 'Asia/Kolkata';
+
+SELECT MAKE_INTERVAL(
+               years => 3, months => 6, days => 15, hours => 4
+       );
+
+SELECT MAKE_INTERVAL();
+
+CREATE TABLE time_data
+(
+    id     SERIAL PRIMARY KEY,
+    year   INTEGER,
+    month  INTEGER,
+    day    INTEGER,
+    hour   INTEGER,
+    minute INTEGER,
+    second INTEGER
+);
+
+INSERT INTO time_data (year, month, day, hour, minute, second)
+VALUES (1, 3, 25, 10, 0, 0),
+       (2, 2, 25, 11, 30, 0),
+       (3, 1, 25, 13, 15, 0)
+RETURNING *;
+
+SELECT MAKE_INTERVAL(
+               year, month, 0, day, hour, minute, second
+       ) AS interval_data
+FROM time_data;
+
+SELECT JUSTIFY_INTERVAL('35 days');
+
+SELECT JUSTIFY_INTERVAL('30 hours');
+
+SELECT JUSTIFY_INTERVAL('-2 days 5 hours');
+
+SELECT JUSTIFY_HOURS(INTERVAL '24 hours'),
+       JUSTIFY_HOURS(INTERVAL '48 hours'),
+       JUSTIFY_HOURS(INTERVAL '72 hours');
+
+SELECT JUSTIFY_HOURS(INTERVAL '25 hours'),
+       JUSTIFY_HOURS(INTERVAL '50 hours'),
+       JUSTIFY_HOURS(INTERVAL '70 hours');
+
+SELECT JUSTIFY_HOURS(INTERVAL '15 days 2 hours'),
+       JUSTIFY_HOURS(INTERVAL '55 days 30 minutes'),
+       JUSTIFY_HOURS(INTERVAL '75 days 45 seconds');
+
+SELECT JUSTIFY_DAYS(INTERVAL '30 days'),
+       JUSTIFY_DAYS(INTERVAL '60 days'),
+       JUSTIFY_DAYS(INTERVAL '90 days');
+
+SELECT JUSTIFY_DAYS(INTERVAL '15 days'),
+       JUSTIFY_DAYS(INTERVAL '45 days'),
+       JUSTIFY_DAYS(INTERVAL '75 days');
+
+SELECT JUSTIFY_DAYS(INTERVAL '15 days 2 hours'),
+       JUSTIFY_DAYS(INTERVAL '55 days 30 minutes'),
+       JUSTIFY_DAYS(INTERVAL '75 days 45 seconds');
+
+SELECT AGE('2017-01-01', '2011-06-24');
+
+SELECT current_date,
+       AGE(timestamp '2000-01-01');
+
+SELECT rental_id,
+       customer_id,
+       AGE(return_date, rental_date) AS duration
+FROM rental
+WHERE return_date IS NOT NULL
+ORDER BY duration DESC
+LIMIT 10;
+
+SELECT MAKE_TIME(22, 30, 45);
+SELECT MAKE_DATE(2023, 3, 25);
+
+-- Using the MAKE_DATE() function to generate sequential date
+SELECT MAKE_DATE(2023, 1, day) dates
+FROM generate_series(1, 7) AS day;
+
+SELECT TO_DATE('20170103', 'YYYYMMDD');
+
+SELECT date_part('century', TIMESTAMP '2017-01-01');
+SELECT date_part('year', TIMESTAMP '2017-01-01');
+SELECT date_part('quarter', TIMESTAMP '2017-01-01');
+SELECT date_part('month', TIMESTAMP '2017-09-30');
+SELECT date_part('decade', TIMESTAMP '2017-09-30');
+SELECT date_part('week', TIMESTAMP '2017-09-30');
+SELECT date_part('millennium', now());
+SELECT date_part('day', TIMESTAMP '2024-12-31 16:43:30');
+SELECT date_part('hour', TIMESTAMP '2017-03-18 10:20:30')   h,
+       date_part('minute', TIMESTAMP '2017-03-18 10:20:30') m,
+       date_part('second', TIMESTAMP '2017-03-18 10:20:30') s;
+
+
+SELECT LOCALTIMESTAMP(2),
+       LOCALTIME(2),
+       NOW(),
+       NOW()::timestamp,
+       NOW()::timestamptz,
+       statement_timestamp(),
+       clock_timestamp(),
+       current_timestamp,
+       current_time(2),
+       current_date;
 
 SELECT ISFINITE('2024-03-20'::date) result;
 SELECT ISFINITE(DATE 'infinity') result;
