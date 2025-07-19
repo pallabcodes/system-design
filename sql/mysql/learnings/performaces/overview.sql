@@ -1,5 +1,71 @@
--- Prefixing with `explain` allows us to see the execution plan of a query e.g. EXPLAIN SELECT * FROM users; OR EXPLAIN format=json SELECT * FROM users WHERE id = 1;
+-- explain FORMAT=JSON SELECT * FROM Users WHERE email_verified = 1 AND is_active = 1 ORDER BY last_active DESC LIMIT 10;
+-- explain FORMAT=tree SELECT * FROM Users WHERE email_verified = 1 AND is_active = 1 ORDER BY last_active DESC LIMIT 10; 
+-- The above is used by default with analyze e.g. explain analyze SELECT * FROM Users WHERE email_verified = 1 AND is_active = 1 ORDER BY last_active DESC LIMIT 10;
 
--- SHOW TABLES; SHOW COLUMNS FROM users; SHOW CREATE TABLE users; EXPLAIN SELECT * FROM users WHERE name='John' \G;
 
--- Prefixing with analyze after explain provides additional details on the execution plan e.g. EXPLAIN ANALYZE SELECT * FROM users;
+--
+-- Key Properties in EXPLAIN FORMAT=JSON (MySQL)
+--
+-- | Property                   | Description / Why Important                |
+-- |----------------------------|--------------------------------------------|
+-- | query_block                | Main section describing the query plan      |
+-- | select_id                  | Query block identifier (for subqueries)    |
+-- | cost_info.query_cost       | Estimated total cost (lower is better)     |
+-- | table.table_name           | Table being accessed                       |
+-- | table.access_type          | How table is accessed (scan vs. index)     |
+-- | table.rows_examined_per_scan| Rows scanned (lower is better)            |
+-- | table.rows_produced_per_join| Rows output after filtering                |
+-- | table.filtered             | % of rows passing WHERE (higher is better) |
+-- | table.cost_info.read_cost  | Cost to read rows                          |
+-- | table.cost_info.eval_cost  | Cost to evaluate conditions                |
+-- | table.cost_info.prefix_cost| Cumulative cost up to this point           |
+-- | table.used_columns         | Columns accessed by the query              |
+--
+-- Example EXPLAIN FORMAT=JSON output for reference:
+--¡
+-- {
+--   "query_block": {
+--     "select_id": 1,
+--     "cost_info": {
+--       "query_cost": "0.55"
+--     },
+--     "table": {
+--       "table_name": "Users",
+--       "access_type": "ALL",
+--       "rows_examined_per_scan": 3,
+--       "rows_produced_per_join": 3,
+--       "filtered": "100.00",
+--       "cost_info": {
+--         "read_cost": "0.25",
+--         "eval_cost": "0.30",
+--         "prefix_cost": "0.55",
+--         "data_read_per_join": "7K"
+--       },
+--       "used_columns": [
+--         "id",
+--         "uuid",
+--         "username",
+--         "first_name",
+--         "last_name",
+--         "email",
+--         "gender",
+--         "phone",
+--         "email_verified",
+--         "mfa_enabled",
+--         "password_hash",
+--         "preferences",
+--         "last_login_ip",
+--         "login_count",
+--         "is_active",
+--         "last_active",
+--         "last_password_change",
+--         "failed_login_attempts",
+--         "locked_until",
+--         "last_failed_attempt",
+--         "created_at",
+--         "updated_at",
+--         "deleted_at"
+--       ]
+--     }
+--   }
+-- }
