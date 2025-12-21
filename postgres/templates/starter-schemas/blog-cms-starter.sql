@@ -313,7 +313,7 @@ CREATE TABLE page_views (
     user_id UUID REFERENCES users(user_id),
     country_code CHAR(2),
     city VARCHAR(100)
-) PARTITION BY RANGE (viewed_at);
+) PARTITION BY RANGE (viewed_at); -- this `viewed_at` is the partition key
 
 CREATE TABLE search_queries (
     query_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
