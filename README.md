@@ -4,15 +4,37 @@ This repository contains comprehensive database patterns, techniques, and enterp
 
 ## 🏗️ Repository Structure
 
-### SQL & MySQL
-- **Basic SQL**: Fundamentals, constraints, data types, filtering, grouping
-- **Advanced MySQL**: Stored procedures, triggers, views, transactions, subqueries
-- **Performance**: Indexing, query optimization, monitoring, replication
-- **Enterprise Patterns**: Advanced techniques used by major tech companies
+### SQL Databases
 
-### NoSQL
-- Schema design patterns and inheritance strategies
-- Template implementations for various NoSQL databases
+### Database Systems (`database/`)
+
+All database systems are organized under the `database/` directory:
+
+#### MySQL (`database/mysql/`)
+- **Core Concepts**: Schema design, normalization, querying, indexing, constraints, functions, triggers, views, partitioning
+- **Advanced Topics**: Backup/recovery, monitoring, performance-tuning, replication, security
+- **Enterprise Patterns**: Production patterns from major tech companies (sharding, multi-tenancy, event sourcing, etc.)
+- **Industry Niches**: 29+ industry-specific schemas
+- **Templates**: Starter schemas, simulation schemas, utilities, common patterns
+
+#### PostgreSQL (`database/postgres/`)
+- **Core Concepts**: Schema design, normalization, querying, indexing, constraints, functions, triggers, views, partitioning
+- **Advanced Topics**: Backup/recovery, monitoring, performance-tuning, replication, security
+- **Industry Niches**: 29+ industry-specific schemas
+- **Templates**: Starter schemas, utilities, common patterns
+
+#### SQL Server (`database/mssql/`)
+- **Core Concepts**: Schema design, normalization, querying, indexing, constraints, functions, triggers, views, partitioning
+- **Advanced Topics**: Backup/recovery, monitoring, performance-tuning, replication, security
+- **Industry Niches**: E-commerce and other industry schemas
+- **Templates**: Starter schemas, utilities, common patterns
+
+#### NoSQL Databases (`database/nosql/`)
+- **Core Concepts**: Schema design, indexing, querying (MongoDB, DynamoDB, Cassandra, Redis)
+- **Advanced Topics**: Performance-tuning, replication, security, monitoring
+- **Industry Niches**: E-commerce implementations for multiple NoSQL databases
+- **Templates**: Starter schemas, common patterns
+- **Database-Specific Examples**: DynamoDB, MongoDB, Cassandra, Redis examples
 
 ### Load Balancers
 - Nginx configurations and load balancing strategies
@@ -25,7 +47,7 @@ This repository contains comprehensive database patterns, techniques, and enterp
 
 ## 🚀 Enterprise Database Patterns
 
-### Advanced MySQL Patterns (`sql/mysql/learnings/enterprise-patterns/`)
+### Advanced MySQL Patterns (`database/mysql/advanced/enterprise-patterns/`)
 
 #### 1. **Sharding & Partitioning**
 - Horizontal sharding strategies with consistent hashing

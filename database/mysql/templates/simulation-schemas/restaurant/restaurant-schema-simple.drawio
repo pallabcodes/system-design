@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2023-07-21T12:00:00.000Z" agent="Mozilla/5.0" version="21.6.6" type="device">
+  <diagram name="Restaurant Schema" id="restaurant-schema">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="user_table" value="User&#xa;-----------------&#xa;PK user_id&#xa;FK role_id&#xa;email&#xa;password_hash&#xa;reward_points&#xa;is_active&#xa;created_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="160" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="user_role_table" value="UserRole&#xa;-----------------&#xa;PK role_id&#xa;role_name" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="280" y="40" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="menu_table" value="Menu&#xa;-----------------&#xa;PK menu_id&#xa;title&#xa;description&#xa;is_active&#xa;created_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="160" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="menuitem_table" value="MenuItem&#xa;-----------------&#xa;PK item_id&#xa;FK menu_id&#xa;FK offer_id&#xa;name&#xa;price&#xa;is_offer&#xa;is_active" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="280" y="240" width="160" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="offer_table" value="Offer&#xa;-----------------&#xa;PK offer_id&#xa;title&#xa;start_time&#xa;end_time&#xa;is_active" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="520" y="240" width="160" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="order_table" value="Order&#xa;-----------------&#xa;PK order_id&#xa;FK user_id&#xa;FK type_id&#xa;FK status_id&#xa;total_amount&#xa;reward_points_used&#xa;created_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="40" y="440" width="160" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="orderitem_table" value="OrderItem&#xa;-----------------&#xa;PK order_item_id&#xa;FK order_id&#xa;FK item_id&#xa;quantity&#xa;price" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="280" y="440" width="160" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ordertype_table" value="OrderType&#xa;-----------------&#xa;PK type_id&#xa;type_name" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="520" y="440" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="orderstatus_table" value="OrderStatus&#xa;-----------------&#xa;PK status_id&#xa;status_name" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="520" y="560" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="tablebooking_table" value="TableBooking&#xa;-----------------&#xa;PK booking_id&#xa;FK user_id&#xa;FK status_id&#xa;table_no&#xa;booking_time&#xa;menu_prebooked" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="40" y="640" width="160" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="banquetbooking_table" value="BanquetBooking&#xa;-----------------&#xa;PK banquet_id&#xa;FK user_id&#xa;FK status_id&#xa;event_date&#xa;custom_menu&#xa;venue_360_view" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="280" y="640" width="160" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="bookingstatus_table" value="BookingStatus&#xa;-----------------&#xa;PK status_id&#xa;status_name" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="520" y="640" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="dailysalessummary_table" value="DailySalesSummary&#xa;-----------------&#xa;PK summary_id&#xa;summary_date&#xa;total_orders&#xa;total_sales&#xa;top_menu_item" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="760" y="40" width="160" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="topmenuitems_table" value="TopMenuItems&#xa;-----------------&#xa;PK summary_id&#xa;FK item_id&#xa;summary_date&#xa;item_name&#xa;total_sold" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="760" y="200" width="160" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="feedback_table" value="Feedback&#xa;-----------------&#xa;PK feedback_id&#xa;FK user_id&#xa;message&#xa;rating&#xa;created_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="760" y="360" width="160" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="auditlog_table" value="AuditLog&#xa;-----------------&#xa;PK audit_id&#xa;FK user_id&#xa;FK category_id&#xa;action&#xa;details&#xa;created_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;align=left;spacingLeft=4;fontStyle=0;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="760" y="520" width="160" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="Restaurant Management System - Google DBA Compliant Schema" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="240" y="10" width="440" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- RELATIONSHIPS -->
+        <!-- User to UserRole -->
+        <mxCell id="user_to_role" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;" edge="1" parent="1" source="user_table" target="user_role_table">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="user_to_role_label" value="n:1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="user_to_role">
+          <mxGeometry x="-0.1373" y="3" relative="1" as="geometry">
+            <mxPoint x="8" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Menu to MenuItem -->
+        <mxCell id="menu_to_menuitem" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;" edge="1" parent="1" source="menu_table" target="menuitem_table">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="menu_to_menuitem_label" value="1:n" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="menu_to_menuitem">
+          <mxGeometry x="-0.1373" y="3" relative="1" as="geometry">
+            <mxPoint x="8" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- MenuItem to Offer -->
+        <mxCell id="menuitem_to_offer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;" edge="1" parent="1" source="menuitem_table" target="offer_table">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="menuitem_to_offer_label" value="n:1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="menuitem_to_offer">
+          <mxGeometry x="-0.1373" y="3" relative="1" as="geometry">
+            <mxPoint x="8" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- User to Order -->
+        <mxCell id="user_to_order" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;" edge="1" parent="1" source="user_table" target="menu_table">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="120" y="200" />
+              <mxPoint x="120" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Order to OrderItem -->
+        <mxCell id="order_to_orderitem" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;" edge="1" parent="1" source="order_table" target="orderitem_table">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="order_to_orderitem_label" value="1:n" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="order_to_orderitem">
+          <mxGeometry x="-0.1373" y="3" relative="1" as="geometry">
+            <mxPoint x="8" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- OrderItem to MenuItem -->
+        <mxCell id="orderitem_to_menuitem" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;" edge="1" parent="1" source="orderitem_table" target="menuitem_table">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="orderitem_to_menuitem_label" value="n:1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="orderitem_to_menuitem">
+          <mxGeometry x="-0.1373" y="3" relative="1" as="geometry">
+            <mxPoint y="8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Order to OrderType -->
+        <mxCell id="order_to_ordertype" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;" edge="1" parent="1" source="order_table" target="ordertype_table">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="240" y="475" />
+              <mxPoint x="240" y="460" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="order_to_ordertype_label" value="n:1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="order_to_ordertype">
+          <mxGeometry x="0.5" y="1" relative="1" as="geometry">
+            <mxPoint x="-40" y="-9" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Order to OrderStatus -->
+        <mxCell id="order_to_orderstatus" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;" edge="1" parent="1" source="order_table" target="orderstatus_table">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="240" y="545" />
+              <mxPoint x="240" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="order_to_orderstatus_label" value="n:1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="order_to_orderstatus">
+          <mxGeometry x="0.6617" relative="1" as="geometry">
+            <mxPoint x="-42" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- TableBooking and BanquetBooking -->
+        <mxCell id="tablebooking_to_status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;" edge="1" parent="1" source="tablebooking_table" target="bookingstatus_table">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="240" y="675" />
+              <mxPoint x="240" y="660" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="banquetbooking_to_status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;" edge="1" parent="1" source="banquetbooking_table" target="bookingstatus_table">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480" y="675" />
+              <mxPoint x="480" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- LEGEND -->
+        <mxCell id="legend_title" value="LEGEND" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="760" y="680" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_user" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="760" y="710" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_user_label" value="User Management" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="790" y="710" width="130" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_menu" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="760" y="740" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_menu_label" value="Menu Management" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="790" y="740" width="130" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_order" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="760" y="770" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_order_label" value="Order Management" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="790" y="770" width="130" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
