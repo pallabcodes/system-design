@@ -1,1 +1,0 @@
-When one machine/client/service communicates with another machine/client/server : it either done through synchronously (HTTP, gRPC, graphql) or asnychronously through events (SQS, SNS, KAFKA, EventBridge etc.)
