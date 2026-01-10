@@ -2,6 +2,9 @@
 
 > **Source**: Thomas Bøgh Fangel (Staff Engineer at Luna, Nordic Neo Bank) - 4 years of ES + DDD in banking.
 
+> **Source**: [Thomas Ploch - "Aggregate Root: The Guardian of Consistency"](https://youtu.be/zlFqjD2LKlE?list=TLGGycqg6C3_wa4wODAxMjAyNg)
+> **Source**: [Paul van der Slot - "Write Cleaner Code with DDD"](https://youtu.be/3t0tZTOGk08?list=TLGGCaOKI_8UoGcwODAxMjAyNg)
+
 ---
 
 ## 🏦 Context: Why Luna Chose Event Sourcing
@@ -74,6 +77,12 @@ public class AccountAggregate {
 | **On Demand** | `eventCount > threshold` | Adaptive |
 | **On Read** | If load time > 500ms | Lazy optimization |
 
+> [!TIP]
+> **🏃 Marathon Analogy**:
+> *   **Events**: Recording every single step a runner takes.
+> *   **Current State**: Looking at the leaderboard at the finish line.
+> *   **Snapshot**: A photo taken at **Mile 19**. To know where the runner is at Mile 20, you don't watch the video from the start. You look at the Mile 19 photo and replay only the last mile of steps.
+
 ---
 
 ### Solution 2: Bounded vs Unbounded State
@@ -131,6 +140,77 @@ public class TransactionEventUpcaster implements Upcaster<TransactionEvent> {
 | **Upcasting** | Transform on read | No storage cost, CPU cost |
 | **Copy-Transform** | Migrate to new store | Storage cost, clean data |
 | **Weak Schema** | Only add optional fields | Simple, limited changes |
+
+---
+
+---
+
+## 🧱 Foundations: The Aggregate Pattern
+
+> **Source**: Thomas Ploch - "Aggregate Root: The Guardian of Consistency"
+
+Before diving into Luna's modeling challenges, it's crucial to define **what an Aggregate actually is**.
+
+### 1. The Definitions
+*   **Aggregate**: A cluster of associated objects treated as a **single unit** for data changes. It is a **Consistency Boundary**.
+*   **Aggregate Root**: The specific entity that acts as the **"Doorkeeper"**. It guards the entry path from the outside world.
+*   **Invariants**: Business rules that must be true *at all times* within the boundary (e.g., "Balance cannot be negative").
+
+### 2. The Rules of the Guardian
+1.  **External objects only hold references to the Root**. Never to internal child entities.
+2.  **The Root enforces all invariants**. You cannot bypass the Root to modify a child entity directly.
+3.  **Unit of Distribution**: Aggregates behave like **"Data Locality" containers**. Related data sits together (like cutlery in a drawer) to avoid distributed transactions.
+
+> [!TIP]
+> **🏦 Bank Vault Analogy**:
+> Imagine a high-security bank vault.
+> *   **The Aggregate**: The entire vault system (boxes, locks, walls).
+> *   **The Root**: The **Bank Manager**.
+> *   **The Rule**: You (External World) cannot simply walk in and rearrange safety deposit boxes (Internal Entities). You must ask the Manager. The Manager checks your ID and the bank's rules (**Invariants**). Only if valid does *he* go inside and update the vault.
+
+### 3. Sizing Heuristic
+> "As big as necessary, but as small as possible."
+*   **Too Big**: Transactional conflicts (lock contention).
+*   **Too Small**: Invariants crossing boundaries require Eventual Consistency (Sagas).
+
+---
+
+## 🔧 Tactical DDD: Writing Cleaner Code
+
+> **Source**: Paul van der Slot - "Write Cleaner Code with DDD"
+
+Once you have your Aggregates defined, how do you implement the internals cleanly?
+
+### 1. Architectural Cleanliness: Hexagonal Architecture
+Isolate your domain logic from the "nasty stuff" (DB drivers, REST adapters, JSON parsing).
+*   **Dependency Inversion**: Domain depends on nothing. Infrastructure depends on Domain.
+*   **Stability**: Swapping a database shouldn't require changing a single line of business rule code.
+
+### 2. Implementation Patterns
+
+| Pattern | Bad (Primitive/Anemic) | Good (Clean DDD) | Why? |
+| :--- | :--- | :--- | :--- |
+| **Value Objects** | `String email` | `EmailAddress email` | Self-validating, type-safe, attracts logic. |
+| **Encapsulation** | `obj.setX(10)` | `obj.doSomething(10)` | **"Tell Don't Ask"**. Avoid setters that allow invalid states. |
+| **Logic Placement** | `Util.isValid(room)` | `room.isValid()` | Logic should live with data ("Center of Gravity"). |
+
+### 3. Pure Functions (Supple Design)
+*   **Functional Core**: Business logic is pure (Input → Output). No side effects.
+*   **Imperative Shell**: The outer layer handles side effects (Saving to DB, Sending emails).
+*   **Benefit**: Pure functions are trivial to test (no mocks needed!).
+
+### 4. Strategic Cleanliness: Bounded Contexts
+
+Don't try to build one "Canonical Model" for the whole company.
+
+> [!TIP]
+> **🏥 Hospital Analogy**:
+> Imagine a single "Patient File" for a huge hospital.
+> *   **The Mess**: The Surgeon sees billing codes. The Billing dept sees blood types. The Janitor sees psychiatric notes. It's a bloated, dangerous mess.
+> *   **Bounded Contexts**:
+>     *   **Surgical Context**: Cares about *Vitals, Allergies, Blood Type*.
+>     *   **Billing Context**: Cares about *Insurance, Address, Credit Score*.
+>     *   **Result**: Two different "Patient" models. Simpler, safer, and optimized for their specific job.
 
 ---
 

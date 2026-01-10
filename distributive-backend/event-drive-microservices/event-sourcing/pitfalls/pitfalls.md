@@ -578,6 +578,11 @@ Partitions = max(
 )
 ```
 
+```
+
+> [!WARNING]
+> **Storage Explosion Reality**: Event Sourcing stores *everything*. In one real-world case (Tinybird), disk usage jumped from **400MB (current state)** to **2TB (events)**. Plan for **10x-100x** storage growth.
+
 ---
 
 ### 3. Migration Patterns
@@ -637,6 +642,17 @@ Partitions = max(
 
 ---
 
+### 6. Data Strategy: The Semantic Layer
+**Don't query raw events directly** for business answers. It's too complex and slow.
+
+**Recommended Layering**:
+1.  **Raw Events**: The immutable log (Kafka/Event Store).
+2.  **Structural Layer**: Flattened, decoded events (Parquet/Avro).
+3.  **Semantic Layer (Gold)**: Aggregated state, business entities (e.g., "Daily Active Users", "Current Balance").
+    *   *Tip*: Use **Materialized Views** (ClickHouse, BigQuery) to auto-maintain this layer.
+
+---
+
 ## Summary
 
 > [!IMPORTANT]
@@ -661,4 +677,4 @@ Partitions = max(
 - [ ] Dashboards and SLOs defined
 - [ ] Chaos tests scheduled quarterly
 
-10. **Blue-Green Projections** for zero-downtime migration.
+

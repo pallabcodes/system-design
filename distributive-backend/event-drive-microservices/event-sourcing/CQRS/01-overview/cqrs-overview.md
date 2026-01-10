@@ -2,6 +2,8 @@
 
 > **Source**: Marco Lenzo's presentation on the mechanics, benefits, and challenges of Event Sourcing and CQRS.
 
+> **Source**: Gulo Wooden - "CQRS & Event Sourcing: The Riddle Game"
+
 ---
 
 ## 🎯 What is CQRS?
@@ -46,6 +48,11 @@ CQRS (Separated Models):
 | **Query Side** | Materializes Read Models from events |
 | **Event Store** | Source of truth (append-only log) |
 | **Projections** | Transforms events into queryable views |
+
+> [!TIP]
+> **♟️ Chess Analogy**:
+> *   **CRUD (Snapshot)**: A photo of the board at the end of the game. It tells you who won, but not how. You can't see "why" the Queen is missing.
+> *   **Event Sourcing (Notation Sheet)**: The list of every move (`e4`, `Nf3`, `Qxd5`). To get the current state, you replay the moves. You can also "time travel" to see the board state at Move 10.
 
 ### Integration Architecture
 
