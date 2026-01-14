@@ -1,4 +1,10 @@
-# Distributed Systems Theory: CAP, PACELC, and Consensus
+# Distributed Systems Theory: The Principal Architect Guide
+
+> **Level**: Principal Architect / SDE-3
+> **Scope**: CAP, PACELC, Consensus (Raft/Paxos), Vector Clocks, and CRDTs.
+
+> [!IMPORTANT]
+> **The Principal Law**: **Wall Clocks are a Lie**. Never rely on system time for ordering events across nodes. Use **Logical Clocks** (Lamport/Vector) or causal history.
 
 > **Source**: [Distributed Systems in One Lesson](https://youtu.be/uTJvMRR40Ag)
 
@@ -100,6 +106,33 @@ Servers depend on NTP. NTP drifts by milliseconds or seconds.
     *   API returns an interval: `[earliest, latest]`.
     *   System **waits out the uncertainty** (e.g., 7ms) before committing.
     *   Result: External Consistency (Linearizability) at global scale.
+
+---
+
+## 🧠 God Mode: Beyond Standard Consensus
+
+Principal Architects deal with problems that simple Raft/Paxos cannot solve.
+
+### 1. Vector Clocks: Causality Detection
+Lamport Clocks tell you "A happened before B". Vector Clocks tell you "A and B were concurrent (conflicting)".
+
+*   **Structure**: Node A: `[A:1, B:0]`. Node B: `[A:0, B:1]`.
+*   **Merge**: `[A:1, B:1]`.
+*   **Conflict**: If Node A sees `[1,0]` and Node B sees `[0,1]`, neither dominates the other. They are **concurrent**. You have a conflict to resolve (like Git merge).
+*   **Use Case**: DynamoDB/Riak versioning.
+
+### 2. CRDTs (Conflict-free Replicated Data Types)
+How to edit a Google Doc offline and sync later without "Merge Conflicts"?
+*   **Idea**: Data structures that *always* merge mathematically correctly.
+*   **Gx-Counter**: An increment-only counter. The merge function is `max(node_a, node_b)`.
+*   **LWW-Element-Set**: Last-Write-Wins element set.
+*   **Use Case**: Redis Enterprise (Geo-Replication), Collaborative Editors.
+
+### 3. Byzantine Fault Tolerance (BFT)
+What if a node isn't just dead, but **evil** (lying)?
+*   **Scenario**: Node A says "Value is 5". Node B says "Value is 6". Node C is the leader but is hacked and sends different values to A and B.
+*   **Solution**: You need `3f + 1` nodes to tolerate `f` traitors. (e.g., 4 nodes to tolerate 1 traitor).
+*   **Use Case**: Blockchain, Inter-Bank Settlements.
 
 ---
 

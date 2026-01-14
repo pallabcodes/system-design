@@ -1,5 +1,14 @@
 # Service Discovery Comprehensive Guide
 
+> **Level**: Principal Architect / SDE-3
+> **Scope**: Consul, Eureka, etcd, Kubernetes DNS, and Multi-Datacenter Patterns.
+
+> [!IMPORTANT]
+> **The CAP Trade-off in Service Discovery**:
+> - **Consul/etcd (CP)**: Strong consistency, may reject writes during partition.
+> - **Eureka (AP)**: High availability, may return stale data during partition.
+> Choose CP for mission-critical financial routing. Choose AP for general microservices.
+
 ## Overview
 
 Service discovery is a critical component of distributed systems that enables services to dynamically locate and communicate with each other without hardcoded network addresses. This comprehensive guide covers service discovery patterns, implementations (Consul, Eureka, etcd), best practices, and enterprise patterns for building resilient microservices architectures.

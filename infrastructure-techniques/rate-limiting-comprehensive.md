@@ -1,5 +1,11 @@
 # Rate Limiting Comprehensive Guide
 
+> **Level**: Principal Architect / SDE-3
+> **Scope**: Token Bucket, Leaky Bucket, Sliding Window, and Distributed Rate Limiting.
+
+> [!WARNING]
+> **The Distributed Challenge**: Rate limiting on a single server is trivial. Rate limiting across a cluster requires **Shared State (Redis)** or **Token Allocation** per node. This guide covers both.
+
 ## Overview
 
 Rate limiting is a critical technique for controlling the rate of requests to protect services from abuse, ensure fair resource usage, and maintain system stability. This comprehensive guide covers rate limiting algorithms, implementation patterns, distributed rate limiting, and enterprise strategies for building production-ready rate limiting systems.

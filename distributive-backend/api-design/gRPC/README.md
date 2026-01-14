@@ -1,5 +1,11 @@
 # gRPC API Design Patterns
 
+> **Level**: Principal Architect / SDE-3
+> **Scope**: Protocol Buffers, Streaming, HTTP/2, and Service Mesh Integration.
+
+> [!IMPORTANT]
+> **The Principal Trade-off**: gRPC is faster than JSON/REST, but it's **not browser-native**. Use **gRPC-Web** or a **gRPC Gateway** to expose services to web clients.
+
 ## Overview
 
 gRPC is a high-performance, open-source universal RPC framework that uses HTTP/2 for transport and Protocol Buffers as the interface definition language. This comprehensive guide covers gRPC service design, streaming patterns, load balancing, and enterprise implementation.

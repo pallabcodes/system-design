@@ -1,5 +1,11 @@
 # Container Orchestration Comprehensive Guide
 
+> **Level**: Principal Architect / SDE-3
+> **Scope**: Kubernetes Patterns, HPA/VPA, and Production-Grade Deployment Strategies.
+
+> [!IMPORTANT]
+> **The Principal Formula**: `Requests` are your "minimum floor" (scheduler uses this). `Limits` are your "maximum ceiling" (OOM-killer uses this). Set `Requests` based on real P90 usage, and `Limits` at 2x `Requests` to allow for burst.
+
 ## Overview
 
 Container orchestration automates the deployment, scaling, and management of containerized applications. This comprehensive guide covers Kubernetes patterns, deployment strategies, scaling, service discovery, and enterprise patterns for building production-ready containerized systems.

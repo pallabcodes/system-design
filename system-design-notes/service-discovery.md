@@ -1,4 +1,12 @@
-# Service Discovery
+# Service Discovery: The Principal Architect Guide
+
+> **Level**: Principal Architect / SDE-3
+> **Scope**: Consul, Eureka, Kubernetes DNS, and Registration Patterns.
+
+> [!IMPORTANT]
+> **The Principal Choice**: Client-Side vs Server-Side Discovery.
+> - **Client-Side** (Eureka): Client queries registry, picks an instance. More control, more complexity.
+> - **Server-Side** (Kubernetes): Load balancer queries registry. Simpler client, less control.
 
 ## What is Service Discovery?
 

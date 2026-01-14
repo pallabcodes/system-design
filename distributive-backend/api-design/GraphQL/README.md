@@ -1,5 +1,11 @@
 # GraphQL API Design Patterns
 
+> **Level**: Principal Architect / SDE-3
+> **Scope**: Schema Design, DataLoader, Federation, and Subscriptions.
+
+> [!WARNING]
+> **The N+1 Trap**: GraphQL is flexible, but without **DataLoader**, a single query can trigger thousands of database calls. Implement batching from day one.
+
 ## Overview
 
 GraphQL is a query language for APIs that provides a more efficient, powerful, and flexible alternative to REST. This comprehensive guide covers GraphQL schema design, resolvers, performance optimization, and enterprise patterns.

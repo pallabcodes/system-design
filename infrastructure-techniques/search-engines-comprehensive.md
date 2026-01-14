@@ -1,5 +1,11 @@
 # Search Engines Comprehensive Guide
 
+> **Level**: Principal Architect / SDE-3
+> **Scope**: Elasticsearch, Solr, Sharding, and Vector Search (RAG).
+
+> [!TIP]
+> **The 2026 Shift: Vector Search**. Traditional BM25/TF-IDF is keyword-based. For Semantic Search and RAG (Retrieval-Augmented Generation), you need **Vector Embeddings**. Elasticsearch 8.x and OpenSearch support `dense_vector` fields for kNN search.
+
 ## Overview
 
 Search engines provide powerful full-text search capabilities, faceted search, aggregations, and real-time indexing for applications requiring advanced search functionality. This comprehensive guide covers Elasticsearch, Apache Solr, and enterprise patterns for building production-ready search systems.

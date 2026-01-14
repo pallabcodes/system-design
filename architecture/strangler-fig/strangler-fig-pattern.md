@@ -1,0 +1,181 @@
+# Strangler Fig Pattern: The Principal Architect Guide
+
+> **Level**: Principal Architect / SDE-3
+> **Scope**: Legacy Modernization, Inverse Conway Maneuver, and The "Dragon" Analogy.
+
+> [!IMPORTANT]
+> **The Principal Law**: **The Dragon of Legacy**. A 20-year-old monolith is a dragon. You cannot slay it with a single blow (Rewrite). You must starve it.
+> **The Rewrite Trap**: 70% of total rewrites fail because the "Target" moves faster than the "Rewrite".
+
+> **Source**: [Daniel Raniz Raneland Talk](https://youtu.be/8X66Pjei1pY)
+
+---
+
+## 🐉 The "Dragon" Analogy
+
+Why do rewrites fail?
+1.  **Lost Wisdom**: The legacy code contains 20 years of edge cases (bug fixes) that are not documented in Jira.
+2.  **The Second System Effect**: Developers overcompensate for the old system's flaws, creating a new system that is even more complex and abstract.
+3.  **Moving Targets**: While you spend 2 years rewriting, the business adds new features to the old system. You never catch up.
+
+**The Solution**: Renovate the house while living in it.
+
+---
+
+## 🏗️ The 3-Phase Migration Strategy
+
+We replace functionality *slice by slice*.
+
+### Phase 1: The Facade (The Shiny Beacon)
+*   **Action**: Place an API Gateway (Kong/Nginx) in front of the Monolith.
+*   **Goal**: Stop adding new code to the Monolith.
+*   **Metric**: 100% of traffic goes through the Gateway.
+
+### Phase 2: The Strangle (Coexistence)
+*   **Action**: Pick **one small, low-risk domain** (e.g., "Image Processing" or "User Avatar").
+*   **Inverse Conway Maneuver**: Create a new "Squad" responsible *only* for this new service. Do not let the "Monolith Team" build the microservice; they will build a Distributed Monolith.
+*   **Dark Launching**: Double-dispatch requests to both Old and New. Compare results. Only switch when confidence > 99.9%.
+
+### Phase 3: The Eliminator
+*   **Action**: Delete the old code.
+*   **Importance**: If you don't delete the old code, you are not strangling; you are just adding complexity.
+*   **Feature Tombstones**: Mark legacy routes as `410 Gone` or redirect permanently.
+
+---
+![Strangler Fig Migration Phases](assets/strangler-fig-migration.png)
+
+We replace functionality *slice by slice* using a **Facade**.
+
+```mermaid
+graph TB
+    subgraph "Phase 1: Interception"
+        Client[Client App]
+        Facade[API Gateway / Facade]
+        Mono[Legacy Monolith]
+        Micro[New Microservice]
+        
+        Client -->|1. All Traffic| Facade
+        Facade -->|2. Default| Mono
+        Facade -->|3. Feature X (Beta)| Micro
+    end
+
+    subgraph "Phase 2: Coexistence (Hard Part)"
+        MonoDB[(Legacy DB)]
+        MicroDB[(New DB)]
+        Sync[CDC / Dual Write]
+        
+        Mono -.->|Read/Write| MonoDB
+        Micro -.->|Read/Write| MicroDB
+        MonoDB <-->|Sync| MicroDB
+    end
+
+    subgraph "Phase 3: Elimination"
+        Client --> Facade
+        Facade -->|100% Traffic| Micro
+        Facade --x Mono
+        Mono --x MonoDB
+    end
+```
+
+### 1. The Facade (The Interceptor)
+The most critical component. It separates the **Interface** from the **Implementation**.
+*   **Layer**: Usually an **API Gateway** (Kong, Nginx) or a Load Balancer (ALB).
+*   **Role**: Accepts all calls. Routes "legacy" calls to Monolith. Routes "modern" calls to Microservices.
+*   **Safety**: Allows instant rollback. If the Microservice fails, change the route config to point back to Monolith.
+
+---
+
+## ⚔️ The Data Problem: Managing Shared State
+
+Moving code is easy. Moving state is hard.
+
+### Strategy A: Dual Write (The risky path)
+The Monolith writes to both its DB and the New DB.
+*   **Pros**: Simpler than setting up CDC.
+*   **Cons**: **Distributed Transactions**. What if Write A succeeds but Write B fails? You have data inconsistency.
+
+### Strategy B: Change Data Capture (The robust path)
+Use **Debezium** or database triggers to stream changes from Legacy DB to New DB.
+
+```mermaid
+sequenceDiagram
+    participant Mono as Monolith
+    participant LDB as Legacy DB
+    participant CDC as CDC (Debezium/Kafka)
+    participant Micro as Microservice
+    participant NDB as New DB
+
+    Note over Mono, LDB: Legacy Write
+    Mono->>LDB: UPDATE Orders SET status='PAID'
+    LDB->>CDC: Transaction Log Event
+    CDC->>Micro: Event: OrderPaid {id: 123}
+    Micro->>NDB: UPDATE Orders SET status='PAID'
+```
+
+*   **Pros**: Eventual consistency without distributed transaction overhead.
+*   **Cons**: Latency. The New DB might be 500ms behind.
+
+---
+
+## 🛡️ Patterns for Success
+
+### 1. Anti-Corruption Layer (ACL)
+The new Microservice should **not** speak the Monolith's internal language.
+*   **Problem**: Monolith uses dirty schemas (e.g., `TBL_USR_01`).
+*   **Solution**: Build an adapter (ACL) that translates `TBL_USR_01` into a clean Domain Object (`User`) before it enters your new clean architecture.
+
+### 2. Dark Launching
+Deploy the new microservice but **do not return its results**.
+1.  Facade sends request to *both* Monolith and Microservice.
+2.  Facade returns Monolith response to user.
+3.  **Comparator sidecar** compares Monolith vs. Microservice response.
+4.  Log any mismatches as bugs.
+5.  Once match rate = 100%, switch traffic.
+
+---
+
+## 🚫 Common Pitfalls (Principal Architect View)
+
+| Pitfall | Description | Solution |
+| :--- | :--- | :--- |
+| **Distributed Monolith** | You split the code but kept a **Shared Database**. | You must split the database, even if it means complex sync logic. |
+| **Latency Explosion** | Facade + ACL + Network Hops adds up. | Monitor P99 latency. Use gRPC for internal service talk. |
+| **"Big Bang" Release** | Waiting until "Feature Complete" to switch. | Switch *one endpoint at a time*. |
+| **Orphaned Facade** | The Facade becomes a localized mess of logic. | Keep logic out of the Facade. It should only be a Router. |
+
+---
+
+## ✅ Principal Architect Checklist
+
+1.  **Establish the Facade First**: Do not migrate a single line of code until you have a routing layer in front of the monolith.
+2.  **Decouple the Database**: If services share tables, they are not microservices. Use CDC or Views to separate them.
+3.  **Plan for Rollback**: Your toggle mechanism must be instant (seconds), not a re-deployment (minutes).
+4.  **Preserve the API Contract**: The client should not know the backend changed. If you break the API, it's not a Strangler Fig, it's a rewrite.
+5.  **Kill the Old Code**: Migration isn't done until the legacy code is **deleted**. Use "feature tombstones" to track dead paths.
+
+---
+
+## 📖 Analogy: The Renovation (aka The "House" Metaphor)
+
+> [!TIP]
+> Strangler Fig is like **renovating an old house while you are still living in it**.
+>
+> 1.  **The Rewrite**: You tear down the house and move to a hotel for 3 years. Risk: You run out of money, stay in the hotel forever, and have no house.
+> 2.  **Strangler Fig**: You renovate **one room at a time**. Start with the kitchen. If you run out of money, you have a new kitchen and an old bedroom. **You still have a livable house.**
+
+---
+
+## 🙋 Q&A: Expert Insights (Daniel Raniz Raneland)
+
+*   **Q: How do you handle pushback?**
+    *   **A**: Don't just say "Technical Debt." Explain "Opportunity Cost." We cannot build Feature X because we are fighting the Monolith.
+*   **Q: TDD vs BDD?**
+    *   **A**: Fix current behavior with Acceptance Tests (Safety Net) before you touch a single line of legacy code.
+*   **Q: When does Management trigger this?**
+    *   **A**: Usually when checking in a single line of code takes 3 days due to "Spaghetti Dependencies." That frustration is your budget unlock.
+
+---
+
+## 🔗 Related Documents
+*   [Data Mesh Foundation](../../mesh/data/data-mesh-foundation.md) — Decentralizing data ownership
+*   [Event Sourcing Patterns](../../distributive-backend/eventing/event-sourcing.md) — Handling state changes

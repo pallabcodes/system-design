@@ -1,1 +1,0 @@
-Resource: https://www.youtube.com/watch?v=KT2RFMTJKGs&pp=ygUdbXVsdGl0ZW5hbmN5IGNvbmZlcmVuY2Ugc2NhbGXSBwkJTQoBhyohjO8%3D

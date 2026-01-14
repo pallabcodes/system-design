@@ -1,3 +1,11 @@
+# Distributed Tracing: The Principal Architect Guide
+
+> **Level**: Principal Architect / SDE-3
+> **Scope**: OpenTelemetry, Trace/Span/Context Propagation, and Sampling.
+
+> [!IMPORTANT]
+> **The Principal Standard**: **OpenTelemetry** is now the industry standard. Use W3C Trace Context headers (`traceparent`, `tracestate`) for cross-service propagation. Don't roll your own.
+
 **Distributed tracing** is a crucial method for **observing requests as they propagate through complex distributed cloud environments**. It involves tagging an interaction with a **unique identifier** that remains with the transaction as it moves across microservices, containers, and infrastructure. This identifier provides **real-time visibility into user experience**, from the top of the stack down to the application layer and the underlying infrastructure.
 
 ### Visual 1: What is Distributed Tracing?

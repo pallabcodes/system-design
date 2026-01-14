@@ -1,5 +1,14 @@
 # Monitoring & Observability Comprehensive Guide
 
+> **Level**: Principal Architect / SDE-3
+> **Scope**: Prometheus, Grafana, OpenTelemetry, and the RED/USE Frameworks.
+
+> [!IMPORTANT]
+> **The Golden Frameworks**:
+> - **RED** (Request Rate, Error Rate, Duration) for **Services**.
+> - **USE** (Utilization, Saturation, Errors) for **Infrastructure**.
+> Use RED for your API endpoints. Use USE for your CPU, Memory, and Disk.
+
 ## Overview
 
 Monitoring and observability are critical for maintaining system health, performance, and reliability in production environments. This comprehensive guide covers metrics collection (Prometheus), visualization (Grafana), logging (ELK Stack), distributed tracing (Jaeger, Zipkin), and enterprise patterns for building observable systems.

@@ -1,5 +1,11 @@
 # Distributed Systems Patterns Comprehensive Guide
 
+> **Level**: Principal Architect / SDE-3
+> **Scope**: CAP, PACELC, Saga Orchestration, and Byzantine Fault Tolerance.
+
+> [!IMPORTANT]
+> **Beyond CAP - PACELC**: CAP is incomplete. PACELC adds the critical question: "*Even* when the network is working (no Partition), do you choose *Latency* or *Consistency*?" Most real-world systems are **PA/EL** (Available during Partition, choose Latency otherwise) or **PC/EC** (Consistent during Partition, choose Consistency otherwise).
+
 ## Overview
 
 Distributed systems patterns are fundamental building blocks for designing scalable, reliable, and consistent distributed systems. This comprehensive guide covers CAP theorem, consensus algorithms (Raft, Paxos), eventual consistency, distributed transactions, and enterprise patterns for building production-ready distributed systems.
@@ -515,6 +521,33 @@ class OutboxPattern:
             except Exception as e:
                 logger.error(f"Failed to publish event: {e}")
 ```
+
+### 🏛️ Principal Pattern: TCC (Try-Confirm/Cancel)
+Sagas are for long-running transactions. **TCC** is for short-lived transactions requiring *reservation* logic.
+
+```python
+class TCCPattern:
+    """
+    TCC is used when you need to "lock" a resource (Try), then either
+    finalize the lock (Confirm) or release it (Cancel).
+    Example: Airline Seat Reservation.
+    """
+    def try_reserve(self, seat_id, user_id):
+        # Phase 1: Try - Lock the resource, but don't commit
+        if db.is_seat_available(seat_id):
+            db.lock_seat(seat_id, user_id, status='RESERVED')
+            return True
+        return False
+
+    def confirm(self, seat_id, user_id):
+        # Phase 2: Confirm - Finalize the reservation
+        db.update_seat(seat_id, user_id, status='CONFIRMED')
+
+    def cancel(self, seat_id, user_id):
+        # Phase 2: Cancel - Release the lock
+        db.unlock_seat(seat_id)
+```
+**Key Difference from Saga**: TCC requires the "Try" phase to lock resources *before* confirmation, preventing overbooking.
 
 ## Consistency Models
 

@@ -1,5 +1,11 @@
 # Caching Strategies Comprehensive Guide
 
+> **Level**: Principal Architect / SDE-3
+> **Scope**: Write-Behind, Cache Stampede Mitigation, and Probabilistic Early Expiration.
+
+> [!WARNING]
+> **The Principal Trap**: Caching seems simple, but **Cache Invalidation** is one of the two hardest problems in computer science. The strategies here address consistency vs. latency trade-offs.
+
 ## Overview
 
 Caching is a critical technique for improving application performance by storing frequently accessed data in fast-access storage. This comprehensive guide covers caching patterns, Redis, Memcached, CDN, and enterprise strategies for building high-performance caching systems.
@@ -624,6 +630,44 @@ def get_user_with_stampede_prevention(user_id):
         # Wait and retry
         time.sleep(random.uniform(0.1, 0.3))
         return get_user_with_stampede_prevention(user_id)
+```
+
+### 🏛️ Principal Pattern: Probabilistic Early Expiration (PER)
+The "Lock" approach above adds latency. A *zero-latency* alternative is **Probabilistic Early Expiration (PER)**.
+
+**The Idea**: Instead of a fixed TTL, each read has a small random chance of triggering a background refresh *before* the cache expires.
+
+```python
+import math
+import random
+
+def get_user_per(user_id):
+    cache_key = f"user:{user_id}"
+    
+    # Get value with creation time
+    cached = r.get(cache_key)
+    created_at = r.get(f"{cache_key}:created_at")
+    
+    if cached:
+        # Calculate probability of early refresh
+        age = time.time() - float(created_at)
+        ttl = 3600  # 1 hour
+        beta = 1.5  # Tuning parameter
+        
+        # Probability increases as the key ages
+        probability = 1.0 - math.exp(-age / (ttl / beta))
+        
+        if random.random() < probability:
+            # Trigger background refresh
+            async_queue.enqueue('refresh_user_cache', user_id)
+        
+        return json.loads(cached)
+    
+    # Cache miss - load from DB
+    user = db.get_user(user_id)
+    r.setex(cache_key, ttl, json.dumps(user))
+    r.set(f"{cache_key}:created_at", time.time())
+    return user
 ```
 
 ### 4. Cache-Aside with Fallback
