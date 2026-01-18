@@ -47,7 +47,7 @@ These diagrams represent a production-grade architecture for 10,000+ cameras wit
 
 ### The Complete Pipeline (Corrected)
 
-![alt text](image-8.png)
+![alt text](./assets/image-8.png)
 
 In the above image , I see first compressed i.e. correct, then wrapped with RTSP stream then it goes to Ethernet that has PoE from there it goes to VMS server where RTSP is being ingested.
 
