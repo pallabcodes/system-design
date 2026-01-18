@@ -82,6 +82,136 @@ Leveraging vendors like Vonage provides resilience.
 
 ---
 
+## 🤖 OpenAI WebRTC Realtime API: Client-Side Tool Calling
+
+> **The Paradigm Shift**: OpenAI's Realtime API allows AI agents to execute "Tool Calls" (Function Calls) triggered by voice or text, with sub-second latency over WebRTC.
+
+### How It Works
+1.  **Client establishes WebRTC session** with OpenAI's Realtime API endpoint.
+2.  **User speaks**: "Check my calendar for tomorrow."
+3.  **OpenAI Server** (via Whisper) transcribes, runs LLM, and decides a `tool_call` is needed.
+4.  **Server sends `response.tool_call` event** over the WebRTC DataChannel (JSON).
+5.  **Client executes the tool locally** (e.g., calls Google Calendar API).
+6.  **Client sends `response.tool_call.complete`** with the result.
+7.  **Server synthesizes voice response**: "You have a meeting at 9 AM."
+
+### Principal Architecture Pattern
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Client as Web Client (Browser)
+    participant OpenAI as OpenAI Realtime API
+    participant Tool as Local Tool (Calendar API)
+
+    User->>Client: "Check my calendar"
+    Client->>OpenAI: Audio (WebRTC SRTP)
+    OpenAI->>OpenAI: Whisper Transcribe -> GPT -> Tool Decision
+    OpenAI->>Client: {"type": "tool_call", "name": "get_calendar"}
+    Client->>Tool: Execute get_calendar()
+    Tool-->>Client: {events: [...]}
+    Client->>OpenAI: {"type": "tool_call.complete", "result": {...}}
+    OpenAI->>Client: TTS Audio: "You have a meeting at 9 AM"
+    Client->>User: Play Audio
+```
+
+### Why WebRTC for Tool Calling?
+*   **Sub-Second Latency**: The entire loop (Voice -> Tool -> Response) must complete in <1s for conversational UX. HTTP polling is too slow.
+*   **Bidirectional DataChannel**: WebRTC DataChannels allow JSON messages *alongside* audio/video streams without opening new connections.
+*   **NAT Traversal**: WebRTC's ICE/STUN/TURN handles corporate firewalls automatically.
+
+---
+
+## 🌐 NATS: The Lightweight Signaling Layer
+
+> **When to use NATS over Redis/Kafka?**
+> NATS is designed for **lightweight, ephemeral signaling**. Redis is for Pub/Sub with persistence. Kafka is for durable event logs.
+
+### NATS in Video Surveillance (VMS)
+
+| Use Case | Why NATS? |
+| :--- | :--- |
+| **PTZ Control Commands** | "Pan Camera 5 Left". Fire-and-forget. No durability needed. |
+| **Presence Updates** | "Operator X is viewing Camera Y". Ephemeral. |
+| **WebRTC Signaling (SDP/ICE)** | Exchange SDP offers/answers. Must be instant (<100ms). |
+
+### The Architecture
+
+```mermaid
+graph TD
+    subgraph "Operators"
+        Op1[Operator A]
+        Op2[Operator B]
+    end
+
+    subgraph "VMS Backend"
+        Gateway[WebSocket Gateway]
+        NATS[(NATS Server)]
+        VMS[VMS Service]
+    end
+
+    Op1 -->|"PTZ.Cam5.Left"| Gateway
+    Gateway -->|Publish| NATS
+    NATS -->|Subscribe| VMS
+    VMS -->|Control| Camera[IP Camera 5]
+
+    Op2 -->|"Subscribe: Cam5.Status"| Gateway
+    NATS -->|Broadcast| Gateway
+    Gateway -->|Push| Op2
+```
+
+### NATS vs Redis Pub/Sub vs Kafka
+
+| Feature | NATS | Redis Pub/Sub | Kafka |
+| :--- | :---: | :---: | :---: |
+| **Latency** | ✅ <1ms | ✅ <5ms | ⚠️ 10-50ms |
+| **Durability** | ❌ Ephemeral | ❌ Ephemeral | ✅ Persistent |
+| **QoS** | At-most-once | At-most-once | At-least-once |
+| **Clustering** | ✅ Native | ⚠️ Sentinel | ✅ Native |
+| **Use Case** | Signaling, Commands | Chat, Presence | Event Sourcing |
+
+> [!TIP]
+> **The Principal Pattern**: Use **NATS for Commands** (ephemeral), **Redis for Presence** (cached), **Kafka for Events** (durable).
+
+---
+
+## 🔥 Firewalls & WebRTC: The NAT Traversal Problem
+
+> **The Brutal Truth**: 60% of WebRTC connections fail on the first attempt due to **Symmetric NAT** and **Corporate Firewalls**.
+
+### The ICE Maze
+
+1.  **STUN (Session Traversal Utilities for NAT)**: Discovers your public IP. Works for ~80% of home NATs.
+2.  **TURN (Traversal Using Relays around NAT)**: Relays all traffic through a server. Works for 100% of cases but is **expensive** (bandwidth cost).
+3.  **ICE (Interactive Connectivity Establishment)**: Tries STUN first, falls back to TURN.
+
+### The Corporate Firewall Problem
+
+| Firewall Type | STUN Works? | TURN Works? | Solution |
+| :--- | :---: | :---: | :--- |
+| **Home NAT** | ✅ Yes | ✅ Yes | — |
+| **Symmetric NAT** | ❌ No | ✅ Yes | TURN Relay |
+| **Enterprise (Port 443 only)** | ❌ No | ⚠️ Maybe | TURN over TLS (Port 443) |
+| **Deep Packet Inspection (DPI)** | ❌ No | ❌ No | WebSocket Fallback |
+
+### The Google-Scale Solution: TURN over TLS on Port 443
+
+```mermaid
+graph LR
+    Client[Browser] -->|HTTPS (443)| Firewall[Corporate Firewall]
+    Firewall -->|"Looks like HTTPS"| TURN[TURN Server (coturn)]
+    TURN -->|DTLS-SRTP| Peer[Remote Peer]
+```
+
+*   **Why Port 443?** Firewalls almost never block HTTPS.
+*   **Why TLS?** DPI cannot distinguish TURN-over-TLS from regular HTTPS traffic.
+*   **Tool**: `coturn` (open-source TURN server) with `--tls-listening-port=443`.
+
+> [!WARNING]
+> **The Cost Trap**: TURN relays **all** video through your server. At 4K (20 Mbps), 100 concurrent calls = **2 Gbps** bandwidth. Budget for this.
+
+---
+
 ## ✅ Principal Architect Checklist
 
 1.  **Heartbeats (Ping/Pong)**: Mandatory. Load Balancers (AWS ALB) kill idle connections (usually after 60s). App must send "Ping" every 30s.

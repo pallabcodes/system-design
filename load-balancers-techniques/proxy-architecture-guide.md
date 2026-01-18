@@ -26,6 +26,27 @@
 *   **Mechanism**: Intercepts traffic at the network layer (IPtables/eBPF) without the client knowing.
 *   **Use Case**: Service Mesh (Istio), ISP Caching.
 
+```mermaid
+graph LR
+    subgraph "Forward Proxy (Client-side)"
+        Client1[Employee PC] --> FProxy[Forward Proxy (Squid)]
+        FProxy --> |Filtered| Internet((Internet))
+    end
+    
+    subgraph "Reverse Proxy (Server-side)"
+        Internet --> |All Traffic| RProxy[Reverse Proxy (Nginx)]
+        RProxy --> Backend1[App Server 1]
+        RProxy --> Backend2[App Server 2]
+    end
+    
+    subgraph "Transparent Proxy (Network-level)"
+        Pod[Application Pod] --> iptables[iptables (Kernel)]
+        iptables --> Envoy[Envoy Sidecar]
+    end
+```
+
+> **Research Paper**: *"Maglev: A Fast and Reliable Software Network Load Balancer"* (Google NSDI 2016). Describes consistent hashing for L4 proxies at scale.
+
 ---
 
 ## 🛠️ Nginx Tuning: The God Mode

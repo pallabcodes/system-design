@@ -36,6 +36,37 @@
 *   **Standards**: Global rules (PII encryption, naming conventions) are enforced automatically by the platform.
 *   **Autonomy**: Teams decide *how* to model their data, as long as they follow the global interoperability standards.
 
+```mermaid
+graph TD
+    subgraph "Domain: Checkout"
+        CheckoutService[Checkout Microservice]
+        CheckoutDP[Data Product: Orders]
+    end
+    
+    subgraph "Domain: Users"
+        UsersService[Users Microservice]
+        UsersDP[Data Product: User Profiles]
+    end
+    
+    subgraph "Platform (Self-Serve)"
+        Catalog[Data Catalog (DataHub)]
+        Infra[Data Platform (Spark/Snowflake)]
+        Governance[Governance Engine (Policies)]
+    end
+    
+    CheckoutService --> CheckoutDP
+    UsersService --> UsersDP
+    
+    CheckoutDP --> Catalog
+    UsersDP --> Catalog
+    
+    Catalog --> Consumer[Marketing Analytics Team]
+    Governance -.-> CheckoutDP
+    Governance -.-> UsersDP
+```
+
+> **Research Paper**: *"Data Mesh: A Modern Approach to Distributed Data Architecture"* by Zhamak Dehghani (O'Reilly 2022). The foundational text.
+
 ---
 
 ## 🧠 God Mode: The Implementation Reality
