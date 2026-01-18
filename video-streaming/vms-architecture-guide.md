@@ -9,6 +9,35 @@
 
 ---
 
+## 🌐 Google-Scale Video Surveillance: HLD & LLD
+
+These diagrams represent a production-grade architecture for 10,000+ cameras with real-time chat and AI analytics.
+
+### High-Level Design (HLD)
+
+![Google-Scale Video Surveillance HLD](./assets/video_surveillance_hld.png)
+
+**Key Layers**:
+1.  **Edge Layer**: IP Cameras → Edge Gateways (RTSP aggregation).
+2.  **Ingest Layer**: RTSP Ingestors, AI Inference (GPUs), Transcoders.
+3.  **Storage Layer**: Object Storage (MinIO/S3), TimeSeries DB, Vector DB (FRS).
+4.  **Messaging Layer**: Kafka (Events), Redis Pub/Sub (Chat), NATS (Signaling).
+5.  **Delivery Layer**: HLS Packager, CDN, WebRTC SFU.
+6.  **Client Layer**: Web Dashboard, Mobile App, Operator Workstation.
+
+### Low-Level Design (LLD)
+
+![Google-Scale Video Surveillance LLD](./assets/video_surveillance_lld.png)
+
+**Key Pipelines**:
+1.  **AI Pipeline**: YOLO Detection → Post-Processing → Kafka → Event DB.
+2.  **Recording Pipeline**: H.264 Muxer → S3 Object Storage.
+3.  **Live View Pipeline**: HLS Packager → Origin Shield → CDN.
+4.  **Real-Time Chat**: WebSocket Gateway → Redis Pub/Sub → STOMP Broker → Clients.
+5.  **Observability**: OpenTelemetry Collector → Jaeger (Traces), Prometheus (Metrics).
+
+---
+
 ## 🎯 End-to-End Pipeline Clarity (Step-by-Step)
 
 > [!IMPORTANT]

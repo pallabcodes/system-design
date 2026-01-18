@@ -1,6 +1,46 @@
-# Timezone & Daylight Saving Time Patterns
+# Timezone & Daylight Saving Time Patterns: Principal Architect Guide
+
+> **Level**: Principal Engineer / SDE-3
+> **Scope**: Global Timezone Management, DST Transitions, Cross-Timezone Scheduling, and Analytics.
+
+> [!IMPORTANT]
+> **The Principal Law**: **Store UTC. Display Local. Never Store Offsets.**
+> Offsets change (DST). Timezone names (IANA) are stable.
 
 Real-world timezone handling patterns, daylight saving time (DST) management, and global time coordination techniques used by product engineers at Atlassian, Netflix, Uber, Airbnb, and other global companies.
+
+---
+
+## ⚠️ The "Top 5 DST Disasters" (And How to Avoid Them)
+
+> **Why This Matters**: Every year, DST transitions break production systems globally. These are the Principal-level lessons.
+
+### Disaster 1: The "Lost Hour" (Spring Forward)
+*   **Symptom**: Cron jobs scheduled for 2:00 AM - 2:59 AM on the spring DST day **never run**.
+*   **Cause**: That hour doesn't exist.
+*   **Fix**: Schedule critical jobs for 1:00 AM or 3:00 AM. Never 2 AM.
+
+### Disaster 2: The "Duplicate Hour" (Fall Back)
+*   **Symptom**: Analytics double-count events during the 1:00 AM - 1:59 AM hour.
+*   **Cause**: That hour happens twice.
+*   **Fix**: Store `TIMESTAMP WITH TIME ZONE` or include the UTC offset at ingest time.
+
+### Disaster 3: The "Offset-Instead-Of-Name" Mistake
+*   **Symptom**: User in New York sees events at wrong time in August vs December.
+*   **Cause**: You stored `UTC-5` instead of `America/New_York`.
+*   **Fix**: **ALWAYS use IANA timezone names** (`America/Los_Angeles`), not fixed offsets.
+
+### Disaster 4: The "JavaScript `Date()`" Trap
+*   **Symptom**: Server-rendered times are correct. Client-rendered times are wrong by N hours.
+*   **Cause**: JavaScript's `new Date()` uses the *browser's* local timezone, not the user's preferred timezone.
+*   **Fix**: Use `Intl.DateTimeFormat` with explicit `timeZone` option, or libraries like `date-fns-tz` / `luxon`.
+
+### Disaster 5: The "Recurring Event" Nightmare
+*   **Symptom**: "Daily 9 AM standup" now happens at 8 AM or 10 AM after DST.
+*   **Cause**: You stored the event as a fixed UTC time.
+*   **Fix**: Store recurring events with a **local time + timezone name**. Calculate the next UTC occurrence at runtime.
+
+---
 
 ## 🚀 Global Timezone Management
 
