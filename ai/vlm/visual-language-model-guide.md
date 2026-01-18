@@ -30,6 +30,29 @@ You don't just "feed an image" to a Transformer. You typically use a bridge.
 *   It receives: `[START_IMG] <image_tokens> [END_IMG] "Describe this."`
 *   It generates: `"A cat sitting on a mat."`
 
+```mermaid
+flowchart LR
+    subgraph "Perception"
+        Image[1024x1024 Image] --> Patch[Patch Embedding (16x16)]
+        Patch --> ViT[ViT Encoder]
+        ViT --> ImgTokens[256 Image Tokens]
+    end
+    
+    subgraph "Fusion"
+        ImgTokens --> Projection[Projection MLP]
+        Projection --> LLMEmbed[LLM Embedding Space]
+    end
+    
+    subgraph "Generation"
+        TextPrompt[User Prompt] --> Tokenizer[Text Tokenizer]
+        Tokenizer --> LLMEmbed
+        LLMEmbed --> LLM[LLM Decoder (GPT/LLaMA)]
+        LLM --> Output["A cat sitting on a mat."]
+    end
+```
+
+> **Research Paper**: *"An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale"* (Dosovitskiy et al., ICLR 2021). The foundational ViT paper.
+
 ---
 
 ## 🚀 Performance Patterns

@@ -47,6 +47,45 @@ How do we know which SSTable has key "User:123" without reading all of them?
 
 ---
 
+## 🥊 The Comparison: MongoDB vs DynamoDB vs Cassandra vs DocumentDB
+
+> [!IMPORTANT]
+> **The Principal Rule**: The database choice is driven by **Access Pattern**, not data model. Ask: "What queries will I run at scale?"
+
+### The Decision Matrix
+
+| Factor | MongoDB | DynamoDB | Cassandra | DocumentDB (AWS) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Data Model** | Document (JSON) | Key-Value + Document | Wide Column | Document (Mongo-Compatible) |
+| **Query Flexibility** | ✅ Ad-hoc (Secondary Indexes) | ⚠️ Primary Key Only | ❌ Query-First Design | ✅ Ad-hoc |
+| **Write Scalability** | ⚠️ Replica Set (Primary) | ✅ Infinite (On-Demand) | ✅ Linear (Ring) | ⚠️ Writer Endpoint |
+| **Read Scalability** | ✅ Read Replicas | ✅ DAX Cache | ✅ Rack-Aware | ✅ Read Replicas |
+| **Consistency** | Strong (Primary), Eventual (Replicas) | Strong or Eventual (Config) | Tunable (R + W > N) | Strong |
+| **Managed (Serverless)** | Atlas (Free Tier) | ✅ Native | ❌ Self-Managed (Astra for SaaS) | ✅ Native |
+| **Transaction Support** | ✅ Multi-Doc ACID v4.0+ | ✅ TransactWriteItems | ❌ No | ✅ Multi-Doc |
+| **Partition Key Importance** | Shard Key | **Critical** (GSI) | **Critical** (Row Key) | Shard Key |
+| **Cost Model** | Per Instance (Atlas) | Per RCU/WCU (Pay-per-use) | Per Node | Per Instance |
+
+### When to Use Each
+
+#### MongoDB
+*   **Best For**: Startups, flexible schema, rich querying (aggregation pipelines).
+*   **Anti-Pattern**: High write volume without proper sharding (Write Lock bottleneck).
+
+#### DynamoDB
+*   **Best For**: Serverless, predictable access patterns (GetItem by PK), infinite scale with zero ops.
+*   **Anti-Pattern**: Ad-hoc queries (Scans are expensive). Complex relationships (No joins).
+
+#### Cassandra
+*   **Best For**: Time-series, logs, IoT, write-heavy (append-only), multi-datacenter replication.
+*   **Anti-Pattern**: Changing access patterns (Schema is query-first). Small clusters (Overhead > benefit).
+
+#### DocumentDB
+*   **Best For**: Migrating MongoDB workloads to AWS without refactoring code.
+*   **Anti-Pattern**: Expecting 100% MongoDB compatibility (Some features missing).
+
+---
+
 ## ✅ Principal Architect Checklist
 
 1.  **Hot Partitions**: In DynamoDB/Cassandra, if everyone writes to `PartitionKey="Today"`, you burn out one node while others sleep. Use randomness/sharding suffixes.

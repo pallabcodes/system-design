@@ -19,6 +19,24 @@ It's not just "caching static files". It's about Routing and TCP Engineering.
 *   **Mechanic**: BGP (Border Gateway Protocol) routes the user to the *topologically closest* data center.
 *   **Performance**: If a BGP route flaps, users might get rerouted from London to Paris. This is why "Global Accelerators" exist (AWS Global Accelerator avoids BGP for the middle mile).
 
+```mermaid
+graph TD
+    User[User (Sydney)] -->|DNS: example.com| Resolver[DNS Resolver]
+    Resolver -->|Answer: 1.1.1.1 Anycast| User
+    User -->|TCP SYN| BGP[BGP Router]
+    
+    subgraph "Anycast Cloud"
+        BGP -->|Path Selection| Edge1[Sydney PoP (1.1.1.1)]
+        BGP -.->|Backup Path| Edge2[Singapore PoP (1.1.1.1)]
+        BGP -.->|Backup Path| Edge3[Tokyo PoP (1.1.1.1)]
+    end
+    
+    Edge1 -->|Cache HIT| User
+    Edge1 -->|Cache MISS| Origin[Origin Shield (US-West)]
+```
+
+> **Research Paper**: *"The Akamai Network: A Platform for High-Performance Internet Applications"* (ACM SIGOPS 2010). The foundational CDN architecture paper.
+
 ### 2. The TCP Window
 *   **Problem**: TCP Slow Start takes multiple round-trips to reach full speed.
 *   **Solution**: Since the CDN Edge is only 5ms away from the User, the TCP Handshake completes instantly. The CDN maintains a separate, long-lived, high-speed connection to your Origin.

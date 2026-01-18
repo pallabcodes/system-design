@@ -14,6 +14,63 @@ Apache Kafka is a distributed event streaming platform that enables building rea
 
 ---
 
+## 🎯 When Exactly Kafka? (The Principal Decision Matrix)
+
+> [!IMPORTANT]
+> **The Principal Rule**: Kafka is **NOT** a queue. It is a **Distributed Commit Log**. If you don't need **replayability**, **ordering**, or **stream processing**, you probably don't need Kafka.
+
+### The Decision Matrix
+
+| Requirement | Kafka | SQS | SNS | EventBridge | RabbitMQ |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Replayability** (Re-process old events) | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Ordering** (Partition-level FIFO) | ✅ Yes | ⚠️ FIFO Queue | ❌ No | ⚠️ Partition Key | ⚠️ Per-Queue |
+| **High Throughput** (100k+ msg/sec) | ✅ Yes | ⚠️ Batching | ⚠️ Fanout | ❌ No | ⚠️ Cluster |
+| **Stream Processing** (Kafka Streams/Flink) | ✅ Native | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Schema Enforcement** (Avro/Protobuf) | ✅ Registry | ❌ No | ❌ No | ❌ No | ⚠️ Manual |
+| **Serverless / Zero Ops** | ❌ No | ✅ Yes | ✅ Yes | ✅ Yes | ❌ No |
+| **AWS Native Integration** | ⚠️ MSK | ✅ Yes | ✅ Yes | ✅ Yes | ❌ No |
+| **Multi-Consumer (Fan-out)** | ✅ Consumer Groups | ❌ No | ✅ Yes | ✅ Yes | ⚠️ Exchange |
+
+### When to Use Each
+
+#### Use **Kafka** When:
+1.  **Event Sourcing**: You need to replay events to rebuild state (CQRS).
+2.  **Stream Processing**: Real-time aggregation, joins, windowing (Kafka Streams, Flink).
+3.  **High Volume**: Millions of events/day with retention for weeks/months.
+4.  **Multi-DC Replication**: MirrorMaker for disaster recovery.
+
+#### Use **SQS** When:
+1.  **Simple Job Queue**: Worker picks up task, processes, deletes. No replay needed.
+2.  **Serverless**: Lambda triggered by SQS is the simplest decoupling pattern.
+3.  **Guaranteed Delivery**: Dead Letter Queues for failed messages.
+
+#### Use **SNS** When:
+1.  **Fan-Out to Multiple Subscribers**: One event → Email + SMS + Lambda + SQS.
+2.  **Push-Based**: You don't want consumers to poll.
+
+#### Use **EventBridge** When:
+1.  **AWS Service Integration**: Route S3 events to Step Functions.
+2.  **Content-Based Routing**: Filter events by JSON payload (`$.detail.status == "PAID"`).
+3.  **SaaS Events**: Receive events from Zendesk, Auth0, etc.
+
+#### Use **RabbitMQ** When:
+1.  **Complex Routing**: Exchanges (Direct, Topic, Fanout, Headers) for routing logic.
+2.  **Legacy Integration**: AMQP protocol compatibility.
+3.  **Priority Queues**: Process VIP customers first.
+
+### The "Event Bus" vs "Message Queue" Confusion
+
+| Term | Definition | Examples |
+| :--- | :--- | :--- |
+| **Message Queue** | Point-to-point. One producer, one consumer. Message is deleted after consumption. | SQS, RabbitMQ Queue |
+| **Pub/Sub** | One producer, many consumers. Each consumer gets a copy. | SNS, Kafka Topic, Redis Pub/Sub |
+| **Event Bus** | A **logical abstraction** that routes events based on rules. Implementation varies. | EventBridge (Serverless), Kafka (Log), NServiceBus (.NET) |
+
+> **Kafka is a Pub/Sub system implemented as a Commit Log.** EventBridge is an Event Bus implemented as a serverless router.
+
+---
+
 ## 🧠 God Mode: Kafka Internals
 
 Why is Kafka so fast? It's not magic; it's **Operating System physics**.

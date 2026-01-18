@@ -24,6 +24,27 @@
 *   **L7 Layer (Waypoint Proxy)**: Only spun up if you need L7 features (HTTP parsing, Retries, Circuit Breaking).
 *   **Principal Choice**: Use Sidecar-less for 90% of services. Use Waypoint proxies only for the 10% that need complex routing.
 
+```mermaid
+graph LR
+    subgraph "Node 1"
+        App1[App Pod A]
+        Ztunnel1[Ztunnel (L4 mTLS)]
+    end
+    
+    subgraph "Node 2"
+        App2[App Pod B]
+        Ztunnel2[Ztunnel (L4 mTLS)]
+        Waypoint[Waypoint Proxy (L7)]
+    end
+    
+    App1 --> Ztunnel1
+    Ztunnel1 -->|Encrypted TCP| Ztunnel2
+    Ztunnel2 --> Waypoint
+    Waypoint --> App2
+```
+
+> **Research Paper**: *"The eXpress Data Path: Fast Programmable Packet Processing in the Operating System Kernel"* (CoNEXT 2018). The foundational paper for eBPF-based networking.
+
 ---
 
 ## 🛡️ mTLS & Security
