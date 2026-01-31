@@ -87,3 +87,26 @@ Mansfield answers several questions from the audience:
 *   **Management Driven?** No, the project was engineer-driven based on business context, then pitched to management.
 *   **Personalization DAG:** The DAG is ad-hoc in engineers' minds; services locate caches via the Eureka discovery system.
 *   **Other Cloud Providers?** No plans; the team focuses on solving Netflix's problems on AWS.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+EVCache is still open-source and active. However, the industry has commoditized "Tiered Storage." The technique of "Moneta" (RAM + SSD) is now a standard feature in **Redis Enterprise (Redis on Flash)** and **KeyDB**.
+
+**Is it scalable?**
+**Yes.** The global replication pattern via Kafka (active-active) allows for massive geographic scale and fault tolerance.
+
+**What would the architecture look like today?**
+1.  **Managed Active-Active:** Instead of building custom "Replication Relays" and "Proxies" with Kafka, teams might use **Redis Enterprise CRDTs** (Active-Active) which handle global conflict resolution natively.
+2.  **DragonflyDB:** For extreme vertical scale (replacing the complex Moneta L1/L2 split), a single instance of **DragonflyDB** (modern multi-threaded Redis alternative) can handle millions of ops/sec and TBs of memory on one instance, simplifying the topology.
+3.  **Service Mesh:** The "Prana" sidecar concept is now the definition of **Service Mesh** (Istio/Linkerd/Envoy). We wouldn't build a custom sidecar today; we'd use Envoy filters to handle the discovery and routing logic.
+
+## Principal Architect's Q&A
+
+**Q: EVCache (Memcached) vs Redis?**
+
+**A:** In 2025, default to **Redis** (or compatible).
+1.  **Data Structures**: Memcached is strings-only. Redis Sets/Hashmaps allow "Smarter Caching" (e.g., storing a session as a Hash and updating just the 'last_active' field, not the whole object).
+2.  **Threaded Redis**: The "Redis is single-threaded" bottleneck is solved by **DragonflyDB** or **KeyDB**. They are drop-in replacements that use all cores.
+3.  **Active-Active**: EVCache's best feature is its Global Replication. Redis Enterprise does this with **CRDTs** (Conflict-Free Replicated Data Types). If you can't afford Enterprise, you have to build the "Replicator" yourself (like Netflix did).

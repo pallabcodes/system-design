@@ -161,3 +161,17 @@ flowchart TD
 ## 🔗 Related Documents
 *   [Atlassian Scale](atlassian-scale.md) — Solving Metadata Explosion (Database focus)
 *   [Knative Eventing](serverless-aspect-and-why.md) — Serverless Auto-Scaling
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+The "Pod" (or Cell-based) architecture with "Anycast" routing is timeless for massive scale SaaS. It prevents "noisy neighbor" problems and limits blast radius.
+
+**Is it scalable?**
+**Yes.** This is the gold standard for infinite horizontal scaling. Even AWS and Azure use this internally (Cells/Zones).
+
+**What would the architecture look like today?**
+1.  **Service Mesh:** The "Sorting Hat" (OpenResty/Lua) might today be implemented using **Envoy** or a Service Mesh, though Nginx+Lua is still blazing fast.
+2.  **Global Database:** Instead of "MySQL Shards" per pod, we might use **CockroachDB** or **Google Spanner** if we wanted a globally consistent view, but for strict tenant isolation (where US data stays in US), the sharded Pod approach is actually *superior* to a global DB for compliance (GDPR/Data Residency).
+3.  **Serverless:** For the "Floating Capacity," we might use **AWS Fargate** or **Lambda** to burst instantaneously without managing a pool of idle EC2 instances.

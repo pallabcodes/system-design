@@ -798,6 +798,23 @@ class TaskQueue {
 
     // Register a worker for a task type
     async registerWorker(taskType, workerId, handler) {
+        // ... (truncated) ...
+    }
+}
+```
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+Yes. Redis Pub/Sub is often considered "legacy" for reliable messaging because it has no persistence (if you are offline, you miss the message).
+
+**Is it scalable?**
+**Yes**, but with caveats (fan-out builds up CPU).
+
+**What would the architecture look like today?**
+1.  **Redis Streams:** We would use **Redis Streams** (`XADD`, `XREADGROUP`) instead of Pub/Sub (`PUBLISH`) for almost every use case. Streams provide persistence, consumer groups (like Kafka), and acknowledgments, while staying within Redis.
+2.  **NATS JetStream:** For pure ephemeral messaging at scale, we might prefer **NATS** which is often faster and cheaper for the "Fire and Forget" pattern.
         if (!this.workers.has(taskType)) {
             this.workers.set(taskType, new Set());
             // Subscribe to task queue

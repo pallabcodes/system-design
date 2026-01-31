@@ -82,3 +82,12 @@ Reddit experiences seasonal traffic (half volume at night vs. day). They use AWS
 
 ### Summary
 The speaker concludes by emphasizing that observability is key, humans make mistakes, and systems require multiple layers of safeguards. He notes that simplicity is crucial and announces that the team is hiring and holding an AMA.
+
+## Principal Architect's Q&A
+
+**Q: The "Monolith to Microservices" migration seems painful. How to avoid it?**
+
+**A:** You can't avoid the Monolith, but you can avoid the pain.
+1.  **Modular Monolith**: Build modules (Python packages) with strict boundaries *inside* the repo. Enforce "No circular dependencies" with linters.
+2.  **CDC (Change Data Capture)**: Reddit messed up cache invalidation. Use **Debezium**. When Postgres updates, Debezium reads the WAL and invalidates the Cache reliably. Don't "Dual Write" from the app.
+3.  **Gateway Aggregation**: Use **GraphQL Federation** (Apollo Router). It lets backend teams (Listing vs Account) work independently, while the Frontend sees one unified Graph. Reddit built custom "Thing" aggregators; strict GraphQL types would have saved them years of "Schema" bugs.

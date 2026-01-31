@@ -117,3 +117,12 @@ Not all parts of your system are equally valuable. Classify your domains:
 
 ## 📚 Source
 *   [Strategic Domain-Driven Design (YouTube)](https://www.youtube.com/watch?v=am-HXycfalo)
+
+## Principal Architect's Q&A
+
+**Q: Is "Microservices" the only way to implement Bounded Contexts in 2025?**
+
+**A:** No. In fact, the industry is correcting course towards **Modular Monoliths** (Moduliths).
+1.  **Logical vs Physical**: A Bounded Context is a *logical* boundary. You can have 5 Bounded Contexts inside one physical deployable (Monolith).
+2.  **The Network Tax**: Splitting boundaries into microservices introduces network latency and distributed failure modes. With modern languages (Go workspaces, Java Modules, Rust Crates), you can enforce strict boundaries *at compile time* without the overhead of HTTP/gRPC.
+3.  **Team Size Heuristic**: If you have 5 engineers, use a Modulith. If you have 500 engineers, physical separation (Microservices) is necessary to decouple deployment cycles (Conway's Law). The Principal Architect knows when to transition from one to the other.

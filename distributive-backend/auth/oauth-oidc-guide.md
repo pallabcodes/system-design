@@ -104,3 +104,12 @@ Yes, you can implement OAuth 2.0 / OIDC on AWS Free Tier:
 ## 🔗 Related Documents
 *   [API Gateway Guide](../../infrastructure-techniques/api-gateway-comprehensive.md) — JWT Validation at the Edge.
 *   [Service Mesh Guide](../../infrastructure-techniques/service-mesh-comprehensive.md) — mTLS for Service-to-Service Auth.
+
+## Principal Architect's Q&A
+
+**Q: Are Passwords dead? Where do Passkeys fit in OIDC?**
+
+**A:** In 2025, **Passkeys (WebAuthn)** are the primary authentication method, but OIDC is still the *protocol* to transport that identity.
+1.  **Auth vs Protocol**: You authenticate with FaceID (Passkey), but the app still receives an OIDC `id_token`. The "How" (Password vs Bio) changes, but the "Artifact" (JWT) remains.
+2.  **BFF Pattern (Backend for Frontend)**: Storing tokens in the browser (even in memory) is considered risky. The modern standard is the **BFF Pattern**: The Next.js/Go backend handles the OAuth code exchange and issues a strictly HTTP-only `Session` cookie to the browser. The browser never sees the Access Token.
+3.  **Token Exchange (RFC 8693)**: Keep an eye on "Token Exchange". It allows Gateway Service A to trade a user's token for a new token with narrower scope for internal Service B. This is "Least Privilege" for microservices.

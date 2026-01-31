@@ -93,3 +93,12 @@ Use Prometheus **Histograms** to capture feature distributions. This is cheaper 
 > *   **ML Observability**: **Tasting the food**.
 > 
 > The oven might be 400°F (perfect), the Chef might be sweating (100% capacity), but if he accidentally used **salt instead of sugar** (Data Shift), the cake is ruined. Traditional metrics say "Success". Observability says "Failure".
+
+## Principal Architect's Q&A
+
+**Q: "Drift Detection" sounds expensive. How do I do it cheaply?**
+
+**A:** Don't log every input.
+1.  **Bucketing**: Use **Prometheus Histograms** for scalar features (Age, Price). It's cheap to store counts.
+2.  **Embeddings**: For text/images, don't store the raw data. Store the **Embedding Vector**. Calculate the "Centroid" of the vectors every hour. If the centroid moves, your topic has changed.
+3.  **Gold Set**: Keep a "Golden Dataset" (verified good inputs). Run it through the model every 5 minutes. If *predictions* change for the *same* inputs, your model environment (libs, GPU) is borked.

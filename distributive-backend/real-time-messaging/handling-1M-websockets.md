@@ -63,3 +63,16 @@ After applying all optimizations, the server successfully handles 1 million conc
     4.  **Conntrack:** Increased `nf_conntrack_max` to allow tracking more than 262,000 connections.
 
 Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+This is a "C10M" (10 Million Concurrent Connections) style ultra-optimization. The techniques (bypassing the Go runtime's one-goroutine-per-conn model in favor of raw `epoll`) are still valid for *maximizing* a single machine's throughput. However, the Go runtime itself has become much more efficient since 2017-2018 (async preemption, better GC), making the standard library capable of handling significantly higher loads than before without such drastic hacks.
+
+**Is it scalable?**
+**Yes**, extremely. This architecture is designed for vertical scalability limits. However, optimizing for 1M connections on a *single* node is often considered an anti-pattern in modern cloud engineering due to **Blast Radius**. If that one super-node fails, 1 million clients simultaneously disconnect and try to reconnect (Thundering Herd), essentially DDoS-ing your system.
+
+**What would the architecture look like today?**
+1.  **io_uring:** On modern Linux kernels (5.1+), **io_uring** provides a more efficient async I/O interface than `epoll`, allowing for true async submission and completion queues with fewer syscalls. Modern high-perf Go libraries (like `gnet`) are moving towards `io_uring`.
+2.  **Horizontal vs Vertical:** Today, we prioritize **Horizontal Scalability**. Instead of tuning one box to hold 1M connections, we would run 20 pods holding 50k connections each on Kubernetes. This is safer and easier to manage.
+3.  **QUIC / HTTP/3:** We might use QUIC (UDP) instead of TCP for better performance over unreliable networks, avoiding Head-of-Line blocking.
+4.  **eBPF / XDP:** For even more extreme performance (preventing packets from even reaching the standard kernel network stack), modern edge-proxies usage eBPF/XDP, though this is usually for load balancers (Cilium, Katran) rather than application servers.

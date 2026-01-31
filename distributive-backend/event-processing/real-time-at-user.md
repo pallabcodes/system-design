@@ -92,3 +92,26 @@ Kafka does not balance itself automatically. Uber built a tool to analyze partit
     *   **Balancing:** Currently done on-demand at the disk level, moving toward automation.
     *   **Infrastructure:** Mostly physical servers; virtual machines are being explored for multi-zone clusters.
     *   **Compression:** They use compression (Snappy/Gzip) on their topics.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+Yes. Uber's custom "uReplicator" and "Rest Proxy" were built because the open-source ecosystem (MirrorMaker 1.0) was immature in 2016. Today, standard tools have caught up.
+
+**Is it scalable?**
+**Yes.** Handling a trillion events is feasible with this sharded, batched architecture.
+
+**What would the architecture look like today?**
+1.  **MirrorMaker 2:** Instead of building a custom "uReplicator" with Helix, we would use **MirrorMaker 2.0** (based on Kafka Connect), which solves the rebalancing storm issues natively.
+2.  **Standard Proxies:** Instead of a custom Rest Proxy, we might use **Envoy** (with Kafka filters) or standard **Confluent REST Proxy** (which is now much faster than the version cited in the talk).
+3.  **Federation:** We might use **Kafka Federation** features or **Cluster Linking** (Confluent) to manage the multi-DC replication without running separate replicator clusters.
+
+## Principal Architect's Q&A
+
+**Q: Should I build a custom REST Proxy for Kafka like Uber did?**
+
+**A:** **No.** That was necessary in 2016.
+1.  **Envoy Proxy**: Today, use **Envoy** with the Kafka Filter. It decodes the Kafka protocol at L7 and gives you observability (Prometheus metrics) and ratelimiting out of the box.
+2.  **Kafka Connect (HTTP Sink/Source)**: If you just need to dump JSON into a topic, use the standard HTTP connector.
+3.  **GraphQL Subscription**: For the "Consumer" side (Push to Frontend), map a Kafka Topic to a **GraphQL Subscription** or Server-Sent Events (SSE) via a gateway, rather than polling a REST endpoint.

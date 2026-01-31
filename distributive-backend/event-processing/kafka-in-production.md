@@ -58,3 +58,26 @@ Berglund presented three support scenarios encountered by Confluent.
 
 ### Conclusion
 The talk concluded with Berglund encouraging the audience to join their Slack channel or download Confluent software to learn more.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+The core fundamentals (Log, Topic, Partition) are immutable. However, the *deployment* has changed massively. "Zookeeper" is being removed in favor of **KRaft** (Kafka Raft Metadata mode), simplifying operations.
+
+**Is it scalable?**
+**Yes.** Kafka is the industry standard for high-throughput streaming.
+
+**What would the architecture look like today?**
+1.  **Tiered Storage:** The "Retain Forever" policy was expensive (Local Disk). Today, **Tiered Storage** (available in Confluent and open source via plugins) automatically offloads old segments to S3, giving you infinite retention with dirt-cheap costs and stateless brokers.
+2.  **No Zookeeper:** Managing Zookeeper was a pain. Modern Kafka (v3.3+) runs in **KRaft mode**, where the brokers themselves manage metadata via an internal Raft quorum.
+3.  **Kube-native:** We rely on the **Strimzi Operator** or **Confluent Operator** to handle the "Cluster Bouncing" and "Rolling Upgrades" that used to cause outages due to manual admin errors.
+
+## Principal Architect's Q&A
+
+**Q: Running Kafka in Production in 2025 - What are the non-negotiables?**
+
+**A:** The "Wild West" days of 0.10 are over.
+1.  **KRaft Mode**: Do not deploy Zookeeper. Zookeeper removal (KIP-500) is complete. Using ZK now is acquiring technical debt on Day 1.
+2.  **Tiered Storage**: Enable it. Separating "Compute" (Brokers) from "Storage" (S3) allows you to scale brokers for throughput and S3 for retention. This saves 70% of infrastructure costs.
+3.  **Governance**: Enforce **Schema Registry** (Protobuf/Avro) strictly. "JSON over Kafka" is a production incident waiting to happen when a producer changes a field type.

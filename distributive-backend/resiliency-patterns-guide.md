@@ -139,3 +139,12 @@ Netflix **Hystrix** is dead (Maintenance Mode). Use **Resilience4j**.
 ## 🔗 Related Documents
 *   [Saga Pattern](../../database/saga/saga-pattern-guide.md) — Handling business failures.
 *   [Distributed Systems Theory](../../networking/distributed-systems-theory.md) — Why failures happen.
+
+## Principal Architect's Q&A
+
+**Q: Are Circuit Breakers enough to prevent cascading failures?**
+
+**A:** No. Circuit Breakers protect the *caller*, but they don't solve the "Blast Radius" problem. In 2025, Principal Architects layer on **Cell-Based Architecture**.
+1.  **The Blast Radius**: If you have 1000 containers and one bad config brings them all down, your resiliency is 0.
+2.  **Cell-Based Isolation**: Group your infrastructure into "Cells" (e.g., 50 cells of 20 containers each). User A is mapped to Cell 1. If Cell 1 fails, only 2% of users are affected. The other 98% (Cells 2-50) are unaware of the outage.
+3.  **Shuffle Sharding**: AWS uses this. User A uses Cells {1, 2}. User B uses Cells {2, 3}. If Cell 1 dies, User A degrades to Cell 2. User B is unaffected. This makes complete system-wide outages mathematically improbable.

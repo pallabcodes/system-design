@@ -132,3 +132,12 @@ The speaker invites the audience to use the open-source Zuul project available o
 *   **Handover:** For critical continuity, they use "hand-over-hand" transfer: a client opens a second connection before closing the first. The registry treats "last write wins" as the active connection.
 *   **Registry State:** The registry stores only the mapping (Client ID -> Server IP). It is immutable unless the client disconnects or crashes. If the registry is wrong (phantom record), the server is the source of truth and will reject the message, triggering a registry cleanup.
 *   **Deduplication:** Handled on the client side using unique message GUIDs.
+
+## Principal Architect's Q&A
+
+**Q: WebSockets vs. SSE (Server-Sent Events) in 2025?**
+
+**A:** Use **SSE** for "Server-to-Client" (Notification) flows.
+1.  **Simplicity**: SSE is just HTTP. It handles reconnects automatically on the client side. No complex handshake protocols.
+2.  **Firewalls**: WebSockets are often blocked by corporate proxies. SSE works everywhere HTTP works.
+3.  **HTTP/3 (QUIC)**: Modern Push servers should run on **HTTP/3**. It solves the "Head of Line Blocking" problem where one lost packet stalls the whole TCP stream.

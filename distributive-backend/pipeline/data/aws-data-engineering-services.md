@@ -134,3 +134,13 @@ To prevent a **Data Swamp**, you need metadata.
 > *   **Redshift** is the **Heavy Forge** for building massive machinery (Complex Analytics).
 > *   **Athena** is the **X-Ray Scanner**—quickly peer inside a box without moving it.
 > *   **Step Functions** is the **Factory Manager**, ensuring machine A finishes before machine B starts.
+
+## Principal Architect's Q&A
+
+**Q: "Data Lake" sounds like 2015. What's the modern way?**
+
+**A:** The Data Lake became a "Data Swamp". The fix is **Data Mesh** + **Lakehouse**.
+1.  **Format Matters**: Don't just dump JSON/CSV to S3. Use **Apache Iceberg**. It adds SQL transactions (ACID) to S3.
+2.  **Domain Ownership (Data Mesh)**: The "Checkout Team" owns the "Checkout Bucket". The "Data Team" doesn't own all data; they own the *Platform* (Glue/Athena).
+3.  **Compute Separation**: Use **Trino** (Starburst) or **Amazon Athena** to query Iceberg tables. It decouples storage (cheap S3) from compute (expensive EC2).
+

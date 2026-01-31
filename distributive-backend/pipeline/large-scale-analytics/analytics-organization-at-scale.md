@@ -116,3 +116,12 @@ How to fix "2,000 dashboards with different revenue numbers"?
 > *   **The Chapter (Specialty)**: That same Cardiologist belongs to the **Cardiology Board**. They meet with Heart Doctors from *other* hospitals to discuss new surgical techniques.
 >
 > This ensures that even though doctors are decentralized across the building, the **Standard of Care** remains high everywhere.
+
+## Principal Architect's Q&A
+
+**Q: "Data Mesh" failed at my company. Why?**
+
+**A:** You did the "Mesh" (decentralization) without the "Platform" (standards).
+1.  **The "Interoperability" Trap**: If Team A uses Tableau + Snowflake and Team B uses PowerBI + BigQuery, looking at "Global Revenue" is impossible. The CoE MUST enforce the "Interface" (e.g., All data must be exposed as Iceberg Tables).
+2.  **The "Analytics Engineer"**: You hired Data Scientists (Stats) but needed Analytics Engineers (Software Engineering habits applied to SQL). Fixing broken pipelines isn't "Data Science", it's engineering.
+3.  **Governance is a Product**: Don't just audit. Build tools that make "doing the right thing" the easiest path.

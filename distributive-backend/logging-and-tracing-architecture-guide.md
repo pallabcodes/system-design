@@ -104,3 +104,12 @@ Always pass `context` (Go) or use `ThreadLocal` (Java) to carry the `TraceID`. I
 ## 🔗 Related Documents
 *   [Multi-Tenancy Observability](../multi-tenancy/multi-tenancy-spring-implementation.md) — Tagging metrics with Tenant ID.
 *   [Async Systems](../async-systems-guide.md) — Tracing through Kafka.
+
+## Principal Architect's Q&A
+
+**Q: Do we strictly need to modify code to get Tracing? What about eBPF?**
+
+**A:** As of 2025, **eBPF (Zero-Instrumentation)** is the default for "Red" metrics (Rate, Errors, Duration) and network mapping, but manual code instrumentation is still superior for *business logic* context.
+1.  **eBPF Magic**: Tools like Cilium/Tetragon or OTel Auto-Instrumentation can visualize the entire service graph and network calls without a single line of code change. This is "free" observability.
+2.  **The Business Gap**: eBPF knows about "HTTP 500", but it doesn't know about "Cart Checkout Failed due to Inventory". For high-value business insights, you still need manual traces: `span.setAttribute("user.id", ...)` and `span.recordException(err)`.
+3.  **High Cardinality Cost**: Warning—putting `user_id` in *metrics* labels (Prometheus) allows for millions of time-series, effectively bankrupting your metrics cluster. Put high-cardinality data in *Logs/Traces*, not Metrics.

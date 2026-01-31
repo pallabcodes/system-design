@@ -126,3 +126,12 @@ Content-Type: application/json
 ## 🔗 Related Documents
 *   [gRPC API Design](../gRPC/README.md) — For internal service-to-service communication.
 *   [GraphQL API Design](../graphql/README.md) — For flexible client-driven queries.
+
+## Principal Architect's Q&A
+
+**Q: Is REST dead in 2025? Everyone talks about tRPC and Server Actions.**
+
+**A:** REST is not dead, but "Handwritten REST Clients" are.
+1.  **The Rise of Types**: The disconnect between a TypeScript frontend and a Go backend is the #1 source of bugs. REST itself is fine, but you must strictly use **OpenAPI (Swagger)** as the contract.
+2.  **RPC over HTTP**: For internal "Backends for Frontends" (Next.js server to client), tools like **tRPC** or **React Server Actions** are vastly superior to REST. They treat the network as an implementation detail.
+3.  **Public vs Private**: Use strictly versioned **REST** for public APIs (Stripe style). Use **RPC/GraphQL** for your own frontend.

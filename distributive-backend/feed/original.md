@@ -91,3 +91,26 @@ The final section covers the recommendation system for finding new friends.
 *   **Impression Logic:** To avoid showing the same ignored suggestions repeatedly, the runtime system re-ranks the cached list based on **impression counts**.
 *   **Formula:** The probability is roughly the offline quality score divided by the number of times the user has already seen the suggestion.
 *   **Result:** Implementing this machine learning approach increased the Click-Through Rate (CTR) for friend requests by 30%.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+Yes. While the "retrieval -> scoring -> ranking" pipeline remains, the models have shifted from Boosted Trees + LogReg to massive **Deep Learning Recommendation Models (DLRM)** and **Transformers**. The "Dispersion" graph features are likely now captured by **Graph Neural Networks (GNNs)** (like GraphSAGE) rather than manual feature engineering.
+
+**Is it scalable?**
+**Yes.** The multi-stage approach (Offline generation -> Online distillation -> Edge ranking) is the only way to handle trillions of items.
+
+**What would the architecture look like today?**
+1.  **Vector Databases:** Instead of simpler inverted indices for the "Inventory" phase, modern systems use **Vector Search** (FAISS, Pinecone, Milvus) to retrieve "semantically" similar content (Embeddings) in real-time.
+2.  **Real-time Feature Stores:** Systems like **Tecton** or **Feast** would manage the point-in-time correctness of features (like "number of likes in last 5 min") effectively, separating the ML logic from the data infrastructure.
+3.  **Edge Inference:** For latency, some lightweight ranking (re-sorting the top 100) now happens **on-device** (in the mobile app) to react instantly to user scrolls without a roundtrip.
+
+## Principal Architect's Q&A
+
+**Q: How do I build a News Feed in 2025?**
+
+**A:** Don't use the "Pull" model (Fan-out on Read) for everyone.
+1.  **Hybrid Architecture:** Use **Fan-out-on-Write** (Push) for 99% of users (fast reads) and **Fan-out-on-Read** (Pull) for celebrities (avoid writing 100M rows).
+2.  **Vector Embeddings**: Your "Scoring" phase should use a **Vector Database** (Milvus/Weaviate). Embed the user's history and the candidate posts into the same space. Dot product = Relevance Score.
+3.  **Real-Time Features**: Use a Feature Store (Tecton/Feast) to count "Likes in last 10m" and feed that to the model.

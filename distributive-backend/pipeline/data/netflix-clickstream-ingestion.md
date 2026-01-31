@@ -112,3 +112,13 @@ How to get events from the App to the Server?
 > *   **Kafka**: The **Terminal Lounge**. A safe place for passengers to wait if the planes are delayed.
 > *   **Flink**: **High-Speed Jets**. For passengers who need to get to "Real-Time Insights" immediately.
 > *   **Data Lake (S3)**: **Long-Term Parking**. Where records of every passenger are kept for months for auditing (History).
+
+## Principal Architect's Q&A
+
+**Q: "Ingest 500k events/sec" sounds scary. Does Flink scale?**
+
+**A:** Flink scales, but the failure mode is "Backpressure".
+1.  **Parallelism Matters**: Don't run 1 massive Flink job. Run a sharded job (Partition by UserID). If one shard fails, only 5% of users are delayed.
+2.  **State Size**: The bottleneck is RocksDB on disk. If your window is "7 days", your state will be Terabytes. Move long windows to Batch (Spark). Keep Flink for < 24h windows.
+3.  **The "Push" Risk**: Push (API Gateway) is a DDOS vector. You MUST have a rate-limiting layer (WAF) or a "Shedding" mechanism. If client apps bug out and infinite loop, they will take down your gateway.
+

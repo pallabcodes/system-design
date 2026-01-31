@@ -132,3 +132,12 @@ Don't treat all tenants equally.
 ## 🔗 Related Documents
 *   [Atlassian Scale](atlassian-scale.md) — Solving Metadata Explosion (Database)
 *   [Cluster Management](cluser-management-large-scale.md) — SolrCloud Ops
+
+## Principal Architect's Q&A
+
+**Q: ElasticSearch is expensive. Can we use Vector DBs for multi-tenant search?**
+
+**A:** Yes, in 2025, Vector Databases (Pinecone, Weaviate, Milvus) are often the default for search, not just AI.
+1.  **Metadata Filtering**: Multi-tenancy in Vector DBs is solved via "Metadata Filtering". You tag every vector with `tenant_id: "A"`. During search, you pass a filter.
+2.  **Performance Warning**: Pre-filtering (checking tenant_id *before* ANN search) can shrink the candidate set too much, hurting recall. Post-filtering is slow. Modern engines use "Filtered ANN" (HNSW with bitmaps) to solve this efficiently.
+3.  **The "Hybrid Search" Standard**: Don't dump ElasticSearch yet. The best search experience combines Keyword Search (BM25) with Vector Search (Semantic). ElasticSearch 8+ does both. Pure Vector DBs are great for RAG, but sometimes users just want to match an exact SKU.

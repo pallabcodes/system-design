@@ -303,3 +303,16 @@ spec:
 ---
 
 This guide provides the architectural understanding and practical patterns for building production-grade real-time data pipelines with Apache Flink.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+Flink has evolved significantly. The **Unified Batch and Stream** architecture is now mature.
+
+**Is it scalable?**
+**Yes.**
+
+**What would the architecture look like today?**
+1.  **Flink SQL:** We would write 90% of our pipelines in **Flink SQL** rather than Java/Scala, as it lowers the barrier to entry and allows for easier "Platform" management.
+2.  **Paimon / Hudi:** We would sink data into a **Streaming Data Lake** (Apache Paimon or Hudi) to allow for efficient updates/deletes in the lake, rather than just appending Parquet files.

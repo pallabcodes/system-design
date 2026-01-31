@@ -113,3 +113,16 @@ server {
 ## 🔗 Related Documents
 *   [Service Mesh](../../mesh/service-mesh-architecture-guide.md) — Envoy (The modern proxy).
 *   [Load Balancers](../../load-balancers-techniques/nginx.md) — Fundamental LB techniques.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+Nginx is still king, but **Envoy** is the new standard for cloud-native/mesh environments. The "Tuning" part is often abstracted away by Kubernetes Ingress Controllers.
+
+**Is it scalable?**
+**Yes.**
+
+**What would the architecture look like today?**
+1.  **Gateway API:** In Kubernetes, we would use the **Gateway API** standard to configure proxies, rather than writing raw `nginx.conf` files.
+2.  **Canary by Header:** We would standardly use **Weighted Routing** (Canary) at the proxy layer for all deployments, managed by a CD tool like **Argo Rollouts**.

@@ -81,3 +81,23 @@ How do you count Daily Active Users (DAU) without tracking User IDs?
     *   **Federated Analytics**: High cost. Maximum privacy (compute on-device).
 5.  **Quantify the Cost Savings**: 1KB saved per log × 1 Billion users = **1 Petabyte saved**. Privacy engineering reduces payload size.
 6.  **Leverage GDPR Exemptions**: Truly anonymized data is often "out of scope" for GDPR. This reduces compliance burden.
+
+## Principal Architect's Q&A
+
+**Q: How do I handle "Crash Logs" without privacy violations?**
+
+**A:** It's hard. A stack trace might contain `user_id in path`.
+1.  **Client-Side Scrubbing**: Run a regex on the device *before* upload to redact credit card patterns or emails.
+2.  **Symbolication on Server**: Upload raw memory addresses (hex) from the device. Map them to function names on the Server using the debug symbols (dSYM). This keeps the PII on the server side (protected) and the device upload "opaque".
+3.  **Deletion Policy**: Crash logs should have a TTL of 7 days. You don't need 2-year-old stack traces.
+
+
+## Principal Architect's Q&A
+
+**Q: How do I handle "Crash Logs" without privacy violations?**
+
+**A:** It's hard. A stack trace might contain `user_id in path`.
+1.  **Client-Side Scrubbing**: Run a regex on the device *before* upload to redact credit card patterns or emails.
+2.  **Symbolication on Server**: Upload raw memory addresses (hex) from the device. Map them to function names on the Server using the debug symbols (dSYM). This keeps the PII on the server side (protected) and the device upload "opaque".
+3.  **Deletion Policy**: Crash logs should have a TTL of 7 days. You don't need 2-year-old stack traces.
+

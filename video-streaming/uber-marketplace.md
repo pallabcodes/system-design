@@ -76,3 +76,17 @@ The system, named **Location Store**, ingests raw locations from apps.
 
 **Summary**
 The talk concludes by recapping that Uber uses a custom in-memory search index (GeoBase) for real-time indexing and a combination of Cassandra and Redis (Location Store) for durable time-series storage.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+Yes. **Ringpop** (the gossip scale-out library) was largely deprecated by Uber in favor of standard Service Mesh (Envoy) and more robust orchestration. Maintaining a custom "Distributed Hash Ring" library is less common today than using consistent hashing at the Load Balancer level.
+
+**Is it scalable?**
+**Yes**, putting the index in-memory (GeoBase) is still the way to go for high QPS.
+
+**What would the architecture look like today?**
+1.  **H3:** Uber open-sourced **H3** (Hexagonal Hierarchical Spatial Index). Today, we would use H3 for the sharding and indexing logic natively.
+2.  **Redis Geospatial:** We might just use **Redis 6+** which has built-in Geo commands (based on H3/Geohash) if the scale fits in RAM, avoiding a custom C++ service.
+3.  **Tile38:** We might use an off-the-shelf Geo-fence server like **Tile38** instead of building GeoBase from scratch.

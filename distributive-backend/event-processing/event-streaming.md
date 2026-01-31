@@ -88,4 +88,13 @@ Bacchus highlights the importance of visibility:
 ### Q&A Highlights
 *   **Why Samza?** They chose Samza over Spark Streaming because, at the time, Spark did not handle back pressure well, whereas Samza handled checkpointing and back pressure effectively.
 *   **Batching:** They utilize batching at the producer level to reduce CPU and network burden.
-*   **Sticky Partitioning:** Used to ensure clusters remain balanced.
+*   **Sticky Partitioning**: Used to ensure clusters remain balanced.
+
+## Principal Architect's Q&A
+
+**Q: This guide describes Netflix Keystone (2016). What changed in 2025?**
+
+**A:** The core principles (At-Least-Once, Fronting Kafka) remain, but the "Sink" has evolved.
+1.  **Keystone -> Data Mesh**: Netflix now emphasizes a "Data Mesh" where teams own their data products, rather than a central Keystone team owning one massive pipeline.
+2.  **Iceberg Tables**: S3 is no longer just a "Dump". They use **Apache Iceberg**. The stream writes to Iceberg tables, providing ACID transactions on S3. This unifies Streaming and Batch (Kappa Architecture).
+3.  **Consolidation**: "Router" layer (Samza) is often replaced by **Kafka Connect** or managed Flink for simpler maintenance.

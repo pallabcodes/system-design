@@ -109,3 +109,12 @@ Serverless is **At-Least-Once**.
 ## 🔗 Related Documents
 *   [Event-Driven Architecture](../event-driven-architecture-guide.md) — The foundation of Serverless.
 *   [Message Brokers](../message-broker-architecture-guide.md) — SQS/Kafka integrations.
+
+## Principal Architect's Q&A
+
+**Q: Is "Cold Start" still a problem in 2025?**
+
+**A:** On legacy runtimes (Java/DotNet on Lambda), yes. But the paradigm is shifting to **Wasm (WebAssembly)** and **Edge Computing**.
+1.  **Wasm Cold Starts are Microsends**: Platforms like Cloudflare Workers (V8 Isolates) or Fermyon Spin use Wasm to start functions in under 5ms. This essentially eliminates the "Cold Start" problem.
+2.  **The Rise of Stateful Serverless**: We are moving from "Stateless Functions" to "Durable Entities" (Microsoft Orleans, Cloudflare Durable Objects). You don't need to load state from DB every time; the logic lives *with* the data in memory.
+3.  **Cost**: Using Lambda for high-traffic sync APIs (10k RPS) is still "FinOps Suicide". At scale, containers (Fargate/Kubernetes) or Wasm-at-Edge are significantly cheaper per request.

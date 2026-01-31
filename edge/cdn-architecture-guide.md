@@ -85,3 +85,16 @@ Moving logic to the CDN.
 ## 🔗 Related Documents
 *   [Proxy Architecture](../../load-balancers-techniques/proxy-architecture-guide.md) — The caching engines often use Nginx/Varnish.
 *   [Network Protocols](../../networking/protocol/network-protocols-guide.md) — QUIC and TCP details.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+The physics of CDNs haven't changed, but the **Edge Compute** capabilities have.
+
+**Is it scalable?**
+**Yes.**
+
+**What would the architecture look like today?**
+1.  **Edge SQL:** We would run **SQLite at the Edge** (like Cloudflare D1 or Turso) to serve dynamic content directly from the PoP, instead of just caching static files.
+2.  **WASM:** We would write Edge logic in **Rust/WASM** (Fastly Compute@Edge) instead of VCL or Lua for safer, faster execution.

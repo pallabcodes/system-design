@@ -145,3 +145,27 @@ Q: What specific lesson did Pinterest learn from their failed database experimen
 
 and more
 
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+The "Boring" stack (MySQL/Redis) is timeless. However, manual sharding of MySQL is painful. Pinterest later moved to **HBase** and **RocksDB** for many workloads, and adopted **Pinot** for analytics.
+
+**Is it scalable?**
+**Yes.** Sharded MySQL + Caching is essentially infinite scale, provided you have the ops team to manage it.
+
+**What would the architecture look like today?**
+1.  **NewSQL:** Instead of manually sharding MySQL and building "NASA-style" protection services, modern teams use **Vitess** (which Pinterest actually adopted later!) or **TiDB** / **CockroachDB**. These provide the SQL interface but handle sharding/replication automatically.
+2.  **Kubernetes:** "Puppetizing" boxes is replaced by **Kubernetes** and container orchestration.
+3.  **Workflow Orchestration:** "Pinlater" (MySQL queue) is an anti-pattern for complex workflows efficiently. Today, we'd use **Temporal** or **Cadence** (which Uber/Pinterest use) for durable, code-based workflow orchestration rather than a simple database-as-a-queue.
+
+## Principal Architect's Q&A
+
+**Q: Pinterest used "Throwing Money at the Problem". Is that valid?**
+
+**A:** **Yes.** Engineering time is 10x more expensive than AWS time.
+1.  **Simplify First**: They stripped the stack to MySQL/Redis. 
+2.  **Vertical Scale**: Before sharding, buy the biggest RDS instance money can buy. It buys you 6 months of no-sharding sleep.
+3.  **Modern Stack**: Today, use **CockroachDB** or **TiDB**. You get the "MySQL" interface but it shards automatically under the hood. Don't write custom sharding logic in your app layer if you can avoid it.
+

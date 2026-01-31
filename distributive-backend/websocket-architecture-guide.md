@@ -224,3 +224,12 @@ graph LR
 ## 🔗 Related Documents
 *   [Event-Driven Architecture](../event-driven-architecture-guide.md) — Async backend patterns.
 *   [Serverless Architecture](../serverless-architecture-guide.md) — Using Fargate for WebSocket servers.
+
+## Principal Architect's Q&A
+
+**Q: Are WebSockets dead? Should we just use HTTP/3?**
+
+**A:** WebSockets are not dead, but **WebTransport** (over HTTP/3) is the successor for high-performance use cases.
+1.  **Head-of-Line Blocking**: In WebSocket (TCP), one lost packet blocks everything behind it. In WebTransport (QUIC), independent streams mean one lost packet only affects that specific stream. This is critical for Live Streaming / Gaming.
+2.  **Unreliable Datagrams**: WebTransport allows sending "Fire and Forget" packets (like UDP) alongside reliable streams. WebSockets cannot do this.
+3.  **Adoption**: For standard Chat apps, WebSockets/Socket.io are still fine (and easier). For Cloud Gaming, Remote Desktop, or AI Voice, widely implement WebTransport in 2025.
