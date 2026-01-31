@@ -100,3 +100,12 @@ For Node.js/TypeScript shops, **BullMQ** is a powerful alternative to heavy infr
 ## 🔗 Related Documents
 *   [Event-Driven Architecture](../event-driven-architecture-guide.md) — The broader context of EDA.
 *   [Circuit Breakers](../../cicuit-breaker/resiliency-patterns-guide.md) — Protecting consumers.
+
+## Principal Architect's Q&A
+
+**Q: Is Kafka still the default in 2025? It feels heavy.**
+
+**A:** The *Kafka API* is the standard, but the *Java implementation* is being challenged.
+1.  **Bring Your Own Cloud (BYOC)**: Tools like **WarpStream** (built on S3) and **Redpanda** (C++ rewriting of Kafka) have revolutionized the operational cost. They offer the Kafka Protocol without the Zookeeper nightmare or local disk management.
+2.  **Queue vs Log**: The strict line between queue (RabbitMQ) and log (Kafka) is blurring. Modern streaming platforms now support "Consumer Groups per Key" and "delayed delivery", eating into RabbitMQ's traditional territory.
+3.  **The "Database" convergence**: Databases (Postgres + pg_vector) are getting better at being queues (with `SKIP LOCKED`), and Queues (Kafka Streams) are getting better at being databases (KTable). For low-scale (<1000 msg/s), just use Postgres.

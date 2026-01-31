@@ -86,3 +86,16 @@ Following the presentation, Bart de Water answered several questions:
 11. **Enforcing Boundaries (Packwerk):** They use an open-source static analysis tool called **Packwerk**. It detects if a component (e.g., Payments) accesses another (e.g., Orders) illegally without using the public API. It can break the build to enforce architecture rules.
 12. **Future of Ruby:** Shopify invests heavily in Ruby. They employ core maintainers working on **YJIT** (Yet Another Just-In-Time compiler). In Ruby 3.1, YJIT is rewritten in **Rust** for better maintainability and performance. Shopify runs development versions of Ruby/Rails in production to test these improvements early.
 13. **Go Architecture:** They do not use a "Packwerk for Go" because their Go applications are small, focused services rather than monoliths.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+The core "Podding" architecture is timeless. However, Shopify has aggressively adopted **React Native** for mobile and **Hydrogen** (Remix-based) for storefronts.
+
+**Is it scalable?**
+**Yes.** Pod architecture is the only way to scale a relational database system indefinitely.
+
+**What would the architecture look like today?**
+1.  **Global Routing:** We might use **Cloudflare Workers** for the "Sorting Hat" logic to route requests to the correct region at the edge, rather than hitting an Nginx tier first.
+2.  **YJIT:** As mentioned, Shopify is betting on **Rust-based parsers** and **YJIT** to make Ruby faster, proving that you don't always need to rewrite in Go/Rust if you optimize the runtime.

@@ -106,7 +106,16 @@ graph LR
 >     *   The bus arrives every 30 minutes.
 >     *   Sometimes it's empty (Resource Waste).
 >     *   Sometimes passengers wait 29 minutes (Latency).
-> *   **Airflow 3.1 (Event Triggers)** is a **Ride-Sharing App**.
+*   **Airflow 3.1 (Event Triggers)** is a **Ride-Sharing App**.
 >     *   The car sits parked (No Resources) until a passenger hits "Request Ride".
 >     *   The car arrives immediately.
 >     *   **Efficiency + Speed**.
+
+## Principal Architect's Q&A
+
+**Q: Should I use Airflow for everything? When do I need Temporal?**
+
+**A:** This is the most common confusion. Airflow is for **Data Pipelines**. Temporal is for **Application Logic**.
+1.  **Airflow**: "Move data from S3 to Snowflake at 9 AM". It is a DAG of *tasks*. If a task fails, you retry the task.
+2.  **Temporal**: "Onboard User: Send Email, Wait 3 days, Charge Card". It is *code*. If the process crashes, it resumes *exactly where it was line-by-line*.
+3.  **The Mental Model**: If you are moving *Rows* (ETL), use Airflow. If you are moving *Entities* (Orders, Payments, Users) through a lifecycle, use Temporal/Durable Execution.

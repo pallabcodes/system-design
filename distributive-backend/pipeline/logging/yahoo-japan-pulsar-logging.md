@@ -105,3 +105,23 @@ When replacing direct point-to-point logging, how do you organize Topics?
 *   **Cost**: Reduced hardware costs by centralizing the buffering layer.
 *   **Resilience**: Traffic spikes (10 Gbps+) are absorbed by the Pulsar buffer, preventing "Monitoring Denial of Service".
 *   **Unified Platform**: One system handles Logs, Job Queues (Mail Indexing), and Content Update Notifications.
+
+## Principal Architect's Q&A
+
+**Q: Pulsar seems great. Why does everyone use Kafka?**
+
+**A:** **Inertia** and **Marketing**.
+1.  **Complexity**: Pulsar has a steep learning curve (BookKeeper + ZooKeeper + Pulsar Brokers). It's 3 distributed systems in one. Kafka (now KRaft) is one binary.
+2.  **The "Queue" feature**: Pulsar wins if you need *both* Streaming (Kafka-like) and Queuing (RabbitMQ-like). It supports "Shared Subscription" (Work Queues) natively. Kafka can't do this easily.
+3.  **Multi-Tenancy**: If you are a Platform Team serving 500 other teams, Pulsar is better. If you are 1 team building 1 app, Kafka is simpler.
+
+
+## Principal Architect's Q&A
+
+**Q: Pulsar seems great. Why does everyone use Kafka?**
+
+**A:** **Inertia** and **Marketing**.
+1.  **Complexity**: Pulsar has a steep learning curve (BookKeeper + ZooKeeper + Pulsar Brokers). It's 3 distributed systems in one. Kafka (now KRaft) is one binary.
+2.  **The "Queue" feature**: Pulsar wins if you need *both* Streaming (Kafka-like) and Queuing (RabbitMQ-like). It supports "Shared Subscription" (Work Queues) natively. Kafka can't do this easily.
+3.  **Multi-Tenancy**: If you are a Platform Team serving 500 other teams, Pulsar is better. If you are 1 team building 1 app, Kafka is simpler.
+

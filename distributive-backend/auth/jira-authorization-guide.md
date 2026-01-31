@@ -982,3 +982,13 @@ AND (
 *   [RDBMS Internals](../database/rdbms-internals-guide.md) — Indexing for permission queries.
 *   [NoSQL Architecture](../database/nosql-architecture-guide.md) — DynamoDB for permission caching.
 *   [Multi-Timezone & DST](../database/multi-timezone-dst-guide.md) — Timestamp handling in audit.
+
+## Principal Architect's Q&A
+
+**Q: JIRA's permission model is ancient. How do modern apps replace this?**
+
+**A:** JIRA's model is valid but "Heavy".
+1.  **FGAC (Fine-Grained Access Control)**: Modern apps use **SpiceDB** (Google Zanzibar) to handle the "Issue Security Level" problem natively. Instead of a custom "Security Level" table, you define a tuple: `issue:123#viewer@user:alice`.
+2.  **Attribute-Based Access Control (ABAC)**: Using **OPA (Open Policy Agent)** allows precise rules like "Interns cannot delete issues after 5 PM" without custom Java plugins.
+3.  **The Performance Cost**: JIRA Data Center slows down because calculating "Can User A see Issue B?" requires joining 12 tables. Modern architectures pre-compute these permissions into a **Read Model** (CQRS) or a fast Search Index (Elasticsearch) updated via events.
+

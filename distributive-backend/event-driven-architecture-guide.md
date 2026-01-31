@@ -176,3 +176,12 @@ Changing an event structure (`userId` -> `user_id`) and breaking all 50 consumer
 *   [Message Brokers Guide](message-broker-architecture-guide.md) — Kafka vs RabbitMQ patterns.
 *   [Distributed Tracing](../distributed-tracing.md) — Tracing events across boundaries.
 *   [Bounded Contexts](../bounded-context-guide.md) — Domain alignment.
+
+## Principal Architect's Q&A
+
+**Q: Should we use "Thin Events" (Notifications) or "Fat Events" (Carried State Transfer)?**
+
+**A:** In 2025, the preference has shifted heavily towards **Fat Events** (Carried State Transfer) for inter-domain communication.
+1.  **The Callback Hell**: Thin events (e.g., `{"id": 123, "type": "updated"}`) force the consumer to immediately call back the Producer API to fetch the data. This creates a "Distributed Denial of Service" attack on your own internal APIs during high traffic.
+2.  **Data Sovereignty**: Fat events (e.g., `{"id": 123, "data": { ...full_state... }}`) allow the consumer to build a local read-model without ever querying the source. This is the essence of true effective decoupling.
+3.  **Governance**: The downside/cost of Fat Events is schema coupling. You must use a Schema Registry (Confluent/AWS Glue) and strict backward compatibility checks.

@@ -797,7 +797,16 @@ db.issues.createIndex({ "customFields.Sprint": 1 });
 
 ---
 
-## ⚡ MongoDB Production Queries
+
+## Principal Architect's Q&A
+
+**Q: Should I implement Google Zanzibar (ReBAC) from scratch?**
+
+**A:** **No.** You will underestimate the complexity of the "Leopard Problem" (transitive graph resolution at scale).
+1.  **Use Off-the-Shelf ReBAC**: If you need "Folder A contains Document B" permissions, use **SpiceDB** (Authzed) or **OpenFGA**. They are open-source Zanzibar implementations.
+2.  **SQL for 80%**: For standard SaaS apps (org -> project -> issue), the SQL recursive CTEs shown in this guide are sufficient and much simpler to operate than a graph DB.
+3.  **OPA (Open Policy Agent)**: For "Policy" checks (e.g., "Can deploy to prod only on Tuesdays"), use OPA + Rego. Don't put that logic in SQL or Code.
+
 
 ### Query 1: Check Permission on Project
 ```javascript

@@ -435,3 +435,16 @@ Why does resharding kill your database?
 ```
 
 This comprehensive visual guide covers both application layer and database layer sharding techniques, providing clear visual representations of complex concepts and practical implementation guidance.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+The math of sharding never changes. However, **NewSQL** databases (TiDB, CockroachDB) now handle this essentially "under the hood" so you don't have to implement it in your application code.
+
+**Is it scalable?**
+**Yes.**
+
+**What would the architecture look like today?**
+1.  **Use Vitess:** If running MySQL at scale, use **Vitess**. It automates the sharding/resharding described in this guide.
+2.  **Serverless Sharding:** Use **CockroachDB Serverless** or **Neon**, where the "shards" are managed dynamically by the vendor, and you just see a single Postgres endpoint.

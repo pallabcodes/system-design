@@ -88,3 +88,22 @@ The speaker summarizes the key takeaways:
 *   **Consistency:** The system prioritizes speed over guaranteed delivery. They do not have strict consistency guarantees (e.g., if a dispatcher fails), but they monitor reliability closely.
 *   **Why not Kafka?** Using Kafka would provide guarantees, but every Frontend machine would have to consume every "Live Video" topic to find its subscribers. This prevents the Frontend layer from scaling horizontally because adding more machines doesn't reduce the consumption load (every machine must still consume everything). The current architecture allows Frontends to only care about their specific connected clients,.
 *   **Slow Clients:** The Frontend server operates on a "fire and forget" basis. It puts data into the pipe and does not block waiting for acknowledgment. If a client is slow or drops events, it does not cause memory exhaustion or impact the server.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+The "Dispatcher" pattern with Akka Actors is a timeless distributed system pattern. However, the specific technologies might have shifted. LinkedIn still uses this core "start small and layer" philosophy, but Akka has changed licensing (now Pekko for open source).
+
+**Is it scalable?**
+**Yes.** The architecture creates excellent isolation:
+*   **Frontends** handle connection limits (C10K/C100K).
+*   **Dispatchers** handle routing logic and fan-out.
+*   **KV Store** handles routing state.
+This allows each layer to scale independently.
+
+**What would the architecture look like today?**
+1.  **Kafka everywhere:** While the talk explains "Why not Kafka?" (consumer consumption load), modern Kafka consumer groups or efficient filtering might be reconsidered, OR a hybrid approach where Kafka feeds the Dispatchers (instead of direct HTTP/RPC).
+2.  **RSocket / gRPC Streaming:** Instead of HTTP Long Polling/SSE, modern implementations might use **gRPC Bidirectional Streaming** or **RSocket**, which provides backpressure and better binary performance than text-based SSE.
+3.  **Sidecars / Service Mesh:** Connection management might be offloaded to a sidecar (Envoy) or a specialized gateway that handles the persistent connections and just forwards events from the backend via gRPC/HTTP2, simplifying the application logic.
+4.  **Global Routing:** The "Peer Dispatcher" model is essentially a manual mesh. Today, technologies like **Redis Enterprise Active-Active** (CRDTs) or globally distributed databases (CockroachDB, Yugabyte) might simplify the cross-DC subscription state management.

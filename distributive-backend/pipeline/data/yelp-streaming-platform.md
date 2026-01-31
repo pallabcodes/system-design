@@ -115,3 +115,37 @@ Yelp treats data movement as a **Platform**, not a script.
 >     *   The Crane doesn't care what's inside the container.
 >     *   It just moves it safely from Ship to Factory.
 >     *   **The Auditor** is the **Checklist Manager** standing by the crane, counting every container to ensure none fell into the ocean.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+The move from Storm to **Flink** was the defining moment of modern streaming. This architecture is effectively *current*. Use of "Schematizer" (Avro Registry) and "Fink Connectors" is still best practice.
+
+**Is it scalable?**
+**Yes.** Flink is the gold standard for stateful streaming at scale.
+
+**What would the architecture look like today?**
+1.  **Flink SQL / Table API:** Instead of writing Java code for "Connectors," modern platforms emphasize **Flink SQL**. You define the source/sink in SQL, and Flink handles the movement.
+2.  **Data Lakehouses:** The sink might not be Redshift/Cassandra directly. We often sink to **Apache Iceberg**, **Hudi**, or **Delta Lake** on S3. These open table formats allow transactional updates on the data lake, serving as both the warehouse and the real-time sink.
+3.  **K8s Operator:** Deployment on "AWS EMR" with "Supervisor scripts" is legacy. Today, we run Flink on Kubernetes using the official **Flink Kubernetes Operator** for native autoscaling and recovery.
+
+## Principal Architect's Q&A
+
+**Q: Why is Flink winning over Spark Streaming?**
+
+**A:** **Latency** and **State**.
+1.  **True Streaming**: Spark Streaming is "Micro-batch" (latency > 5s). Flink is "Row-at-a-time" (latency < 10ms).
+2.  **State Management**: Flink's **RocksDB** state backend is a masterpiece. It allows you to hold TBs of state (e.g., "User's session history for last 30 days") and access it instantly. Spark struggles with massive state.
+3.  **Correctness**: Flink handles "Late Data" using Watermarks correctly. It's the only engine that genuinely solves the "Event Time vs Processing Time" problem at scale.
+
+
+## Principal Architect's Q&A
+
+**Q: Why is Flink winning over Spark Streaming?**
+
+**A:** **Latency** and **State**.
+1.  **True Streaming**: Spark Streaming is "Micro-batch" (latency > 5s). Flink is "Row-at-a-time" (latency < 10ms).
+2.  **State Management**: Flink's **RocksDB** state backend is a masterpiece. It allows you to hold TBs of state (e.g., "User's session history for last 30 days") and access it instantly. Spark struggles with massive state.
+3.  **Correctness**: Flink handles "Late Data" using Watermarks correctly. It's the only engine that genuinely solves the "Event Time vs Processing Time" problem at scale.
+

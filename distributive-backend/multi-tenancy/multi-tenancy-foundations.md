@@ -180,3 +180,12 @@ flowchart LR
 *   [Multi-Tenancy with Spring](multi-tenancy-spring.md) — Application-level implementation
 *   [Atlassian Multi-Tenancy at Scale](atlassian-scale.md) — Database-level at 3M tenants
 *   [Cortex: Multi-Tenant Prometheus](cortex-prometheus-scale.md) — Observability platform
+
+## Principal Architect's Q&A
+
+**Q: Should I use "Database-per-Tenant" (Silo) or "Discriminator Column" (Pool)?**
+
+**A:** This is the "Billion Dollar Question".
+1.  **The Pool (Row-Level Security)**: Use this for 99% of your tenants (Free/Pro tiers). It's cheap and easy to manage (1 DB migration). You solve data leaks with Postgres RLS (Row Level Security), not just `WHERE tenant_id = x` in code.
+2.  **The Silo (DB per Tenant)**: Use this only for Enterprise clients paying >$50k/year. They demand physical isolation for compliance.
+3.  **The Hybrid**: A modern system supports *both*. The code should be agnostic: `getTenantConnection(tenantId)` returns either a shared pool connection or a dedicated DB connection based on the tenant's config.

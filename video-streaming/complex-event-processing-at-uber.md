@@ -80,3 +80,16 @@ Crucially, no processing logic is hardcoded in the processors. Logic is stored e
     *   *Solution:* Newer versions use a single thread for main processing, bounding CPU consumption and allowing multiple jobs to coexist happily in YARN.
 7.  **Job Upgrades/Downtime:** Restarting a Samza job can take minutes due to resource allocation and state restoration.
     *   *Solution:* Use a replication strategy. Start a "shadow" job, upgrade the shadow, switch primary traffic to the shadow, upgrade the primary, and switch back. This achieves zero downtime but requires double capacity during the upgrade.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+Yes. Uber moved from **Samza** to **Flink** (AthenaX). The industry has consolidated on Flink for CEP.
+
+**Is it scalable?**
+**Yes**, but maintaining custom Siddhi extensions is painful.
+
+**What would the architecture look like today?**
+1.  **Flink SQL:** Use standard Flink SQL `MATCH_RECOGNIZE` for pattern matching.
+2.  **Managed Service:** Use **immerok** or **Confluent Cloud for Flink** to avoid managing the YARN/Kubernetes resource scheduler manually.

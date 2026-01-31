@@ -126,9 +126,18 @@ Jean-Noel distinguishes between two forms of consumers in NATS:
 ### Ordering and Flow Control
 *   **Ordering:** Like Kafka, NATS JetStream guarantees messages are delivered in order. There is one order for the stream, and consumers iterate through that order.
 *   **Flow Control:** NATS supports two delivery models, Push and Pull, allowing for different flow control mechanisms:
-    1.  **One-to-Many Flow Control (Push/Durable):** If distributing to 5 applications, the server limits the number of "Pending Acknowledgments" (messages sent but not yet acked) across the group to prevent overwhelming the clients.
-    2.  **One-to-One Flow Control (Pull):** Clients request a specific batch size (e.g., "fetch 10 messages"). The server sends only that amount.
+    *   **One-to-Many Flow Control (Push/Durable):** If distributing to 5 applications, the server limits the number of "Pending Acknowledgments" (messages sent but not yet acked) across the group to prevent overwhelming the clients.
+    *   **One-to-One Flow Control (Pull):** Clients request a specific batch size (e.g., "fetch 10 messages"). The server sends only that amount.
 *   **Kafka Comparison:** Kafka is Pull-only, so it has One-to-One flow control but lacks the One-to-Many concept.
 
 ### Conclusion
 Jean-Noel notes that the new "Simplified JS API" hides the complexity of Push vs. Pull from the user, handling the details under the covers. Finally, he reiterates that you can create as many consumers as you want on a single stream. Each acts as an independent view, and any changes to the underlying stream (like deletions) are immediately reflected in all consumers.
+
+## Principal Architect's Q&A
+
+**Q: NATS JetStream vs Kafka - Who wins in 2025?**
+
+**A:** It depends on where you run.
+1.  **The Edge (IoT/Mobile)**: **NATS JetStream** wins. It's a single binary (40MB), runs on a Raspberry Pi, and handles "Last Value Caching" perfectly for devices that go offline. Kafka is too heavy for the Edge.
+2.  **The Hub (Central Data Lake)**: **Kafka** wins. The ecosystem (Connectors to Snowflake, Debezium for CDC, Flink integration) is unbeatable for massive data gravity.
+3.  **The Hybrid**: Use NATS at the Edge (Stores/Factories), then bridge it to a central Kafka cluster for analytics.

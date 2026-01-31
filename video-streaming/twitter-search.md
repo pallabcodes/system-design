@@ -86,3 +86,17 @@ Busch explains the concept of an **inverted index**: A dictionary of unique term
 *   **Log Analysis Use Case:** Busch agrees this architecture is excellent for log analysis or any use case requiring high write throughput, high query volume, and low latency.
 *   **Faceting:** Twitter does not have standard user-facing facets but uses facet-like technology internally (e.g., identifying "best photos" by faceting on photo IDs within search results).
 *   **Caching:** They do not flush caches like Solr. They use **Partial Query Caching** (e.g., caching the result of a "no spam" filter) and Blender-level result caching.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+This is from 2013-2015. It is ancient in internet years. Twitter has rewritten its search stack multiple times (moving from Java to Scala, and adopting new frameworks).
+
+**Is it scalable?**
+**Yes**, but the "Custom Lucene" approach is extremely expensive to maintain.
+
+**What would the architecture look like today?**
+1.  **Elasticsearch / OpenSearch:** For 99% of companies, managing custom inverted indexes is madness. We would use **Elasticsearch** (which uses Lucene under the hood) but handles the replication/sharding for us.
+2.  **ClickHouse:** For log analysis or high-ingest "search" (where we just need to filter by some tags), **ClickHouse** or **StarRocks** is often faster and cheaper than an Inverted Index because it uses columnar storage + vectorized execution.
+3.  **Vector Search:** Modern search includes "Semantic Search" (Embeddings). We would add a **Vector Database** (e.g., **Milvus**, **Weaviate**, or Lucene's own KNN vectors) to the pipeline to find tweets by *meaning*, not just keywords.

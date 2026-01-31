@@ -52,4 +52,17 @@ Vasily concludes that a well-designed edge enables business evolution. He notes 
 ### Q&A Session
 1.  **Rented PoPs:** If using rented PoPs where you don't control the hardware, **TLS session tickets** should be used to offload termination securely.
 2.  **ALB vs. Zuul:** AWS Application Load Balancers (ALB) are generally used to terminate TLS and route to Zuul. However, Zuul terminates TLS directly in specific cases, such as to support HTTP/2 ALPN, which AWS did not support at the time,.
-3.  **Deep Routing:** The routing rules applied at the Zuul layer (Custom Request Routing) can override the target VIP not just for the next hop, but for the entire invocation chain downstream (e.g., telling a service deep in the stack to call a specific test cluster),.
+3.    *   *Deep Routing:* The routing rules applied at the Zuul layer (Custom Request Routing) can override the target VIP not just for the next hop, but for the entire invocation chain downstream (e.g., telling a service deep in the stack to call a specific test cluster),.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+Yes. **Zuul 1** (Blocking) was replaced by **Zuul 2** (Netty/Non-blocking). More recently, many companies (including parts of Netflix) use **Envoy** for this layer universally.
+
+**Is it scalable?**
+**Yes.** Netflix's edge handles ~15% of global internet traffic.
+
+**What would the architecture look like today?**
+1.  **Envoy/Istio:** We would use **Envoy** as the Edge Gateway instead of writing a custom Java application like Zuul, leveraging its native C++ performance and Wast (WebAssembly) extensibility.
+2.  **eBPF:** We would use **Cilium** or **Katran** (L4) to accelerate packet processing before it even hits the L7 Gateway.

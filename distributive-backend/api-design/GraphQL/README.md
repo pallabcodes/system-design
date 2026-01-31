@@ -520,3 +520,12 @@ describe('User Resolvers', () => {
 5. **Use HTTPS** and proper CORS configuration
 
 This GraphQL implementation provides a complete foundation for building scalable, efficient, and maintainable APIs with modern patterns and best practices.
+
+## Principal Architect's Q&A
+
+**Q: Is GraphQL worth the complexity in 2025?**
+
+**A:** Only if you have a **Organization-Scale Data Graph** problem.
+1.  **The "BFF" Alternative**: If you just have one frontend and one backend, GraphQL is often over-engineering. A BFF (Backend-for-Frontend) with tRPC is simpler and safer.
+2.  **Federation 2**: If you have 50 microservices and want a single "Data Graph", **Apollo Federation 2** is the only game in town. It solves the orchestration problem but introduces a "Gateway Tax" (latency).
+3.  **Security Nightmare**: GraphQL is hard to secure. "Query Depth Analysis" and "Cost Complexity" are mandatory, not optional. If you can't afford a dedicated team to manage the Graph Gateway, stick to REST/RPC.

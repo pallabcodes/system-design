@@ -103,3 +103,35 @@ The speaker explains that services (Cron, Mail, Webhook) are organized into clas
 The speaker reviews the provided GitHub codebase, showing how the Singleton pattern makes the code cleaner. He explains that students can open any GitHub repo in VS Code (in the browser) by pressing the `.` (full stop) key on the repo page. He concludes the session by moving to the Q&A section.
 
 Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+Yes. Running `node-cron` inside a monolithic express server is considered a "toy" architecture today. It violates the **Stateless Principle** of 12-Factor Apps.
+*   **The Problem:** If you auto-scale your API to 10 servers, `node-cron` runs on *all 10 servers*. Your user gets 10 emails instead of 1.
+*   **The Fix in 2026:** We decouple the **Scheduler** (When) from the **Worker** (What).
+
+**Is it scalable?**
+**No.** `node-cron` consumes CPU/RAM on your API server. A heavy report generation job can crash your login API.
+
+**What would the architecture look like today?**
+1.  **Kubernetes CronJobs:** We use K8s native resources.
+    ```yaml
+    apiVersion: batch/v1
+    kind: CronJob
+    metadata:
+      name: daily-report
+    spec:
+      schedule: "0 9 * * 1"
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: report-worker
+                image: my-worker-image
+    ```
+    *   **Benefit:** Zero resource usage when idle. K8s spins up a fresh container at 9:00 AM and kills it when done.
+2.  **Distributed Schedulers (EventBridge):** Use AWS EventBridge Scheduler to trigger a Lambda function or an SQS message. This moves the "Clock" responsibility to the Cloud Provider.
+3.  **Workflow Engines (Temporal):** For complex cron jobs (e.g., "Charge User, if fail wait 3 days, retry"), we use **Temporal Schedules**.
+    *   It guarantees **Exactly-Once** execution.
+    *   It handles retries automatically (node-cron does not).

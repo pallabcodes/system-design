@@ -74,3 +74,26 @@ Crucially, no processing logic is hardcoded in the processors. Logic is loaded f
     *   *Solution:* Newer versions use a single thread for main processing, bounding CPU consumption and allowing happy coexistence of multiple jobs in YARN.
 7.  **Job Upgrades/Downtime:** Restarting a Samza job can take minutes (resource allocation, state restoration).
     *   *Solution:* Use a replication strategy. Start a "shadow" job -> Upgrade the shadow -> Switch primary traffic to shadow -> Upgrade primary -> Switch back. This achieves zero downtime but requires double capacity during the upgrade.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+Yes. Uber eventually replaced much of this custom "Siddhi on Samza" stack with **AthenaX** (based on **Apache Flink**). The industry has largely standardized on Flink for robust stateful processing over Samza.
+
+**Is it scalable?**
+**Yes.** Samza is scalable, but the operational complexity of managing checkpoints (RocksDB) manually via Kafka without atomic guarantees was a pain point.
+
+**What would the architecture look like today?**
+1.  **Flink SQL:** Instead of SiddhiQL (niche), we use **Flink SQL** which supports `MATCH_RECOGNIZE` for pattern detection (CEP) natively.
+2.  **State Management:** Flink handles the "large state" problem automatically with asynchronous RocksDB checkpointing to S3, removing the 1MB Kafka limit hack.
+3.  **Exactly-Once:** Unlike Samza's "at-least-once" (in this era), modern Flink provides **Exactly-Once** semantics end-to-end, critical for fraud detection and billing use cases.
+
+## Principal Architect's Q&A
+
+**Q: Complex Event Processing (CEP) sounds hard. Do I really need Flink?**
+
+**A:** Flink is the "Nuclear Option".
+1.  **SQL is King**: Do not write Java/Scala jobs if you can avoid it. **Flink SQL** allows you to write `SELECT * FROM Stream MATCH_RECOGNIZE (...)` to detect fraud patterns. It's readable and maintainable.
+2.  **Materialized Views**: Often, you don't need a CEP engine. You need a **Materialized View Engine** (like **Materialize** or **RisingWave**). These are databases that "tail" Kafka and keep a SQL view up-to-date in real-time. If your problem is just joins and aggregates, use them instead of Flink.
+3.  **The "Lambda" is Dead**: Don't build separate Batch and Speed layers. Flink (and Iceberg) allows **Kappa Architecture**—one codebase handles both historical backfill and real-time streams.

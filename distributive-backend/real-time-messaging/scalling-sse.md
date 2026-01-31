@@ -54,3 +54,17 @@ The speaker performs a final test with the fixed code:
 The video concludes by confirming that these changes allow the SSE service to scale correctly across multiple cores and persist behind a reverse proxy.
 
 Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+The core pattern of using **Redis Pub/Sub** to bridge stateful connection servers (SSE/WebSocket) is still a widely used and valid industry standard for ensuring scalability across multiple instances. However, the ecosystem has evolved.
+
+**Is it robust/scalable?**
+*   **Yes, but with limits:** Redis Pub/Sub is performant but "fire and forget" (at-most-once delivery). If a subscriber (Node instance) is down or network blips occur, messages are lost.
+*   **Redis Bottleneck:** At extreme scale, a single Redis instance handling all Pub/Sub traffic can become a bottleneck.
+
+**What would the architecture look like today?**
+1.  **Reliable Messaging:** Instead of simple Redis Pub/Sub, modern architectures often use **Redis Streams** (introduced ~2018) or **NATS JetStream**. These provide persistence and consumer groups, ensuring that if a service restarts, it can "catch up" on missed messages (though for real-time ephemeral "live" notifications, catching up is sometimes less critical than timeliness).
+2.  **Dedicated Infrastructure:** For high-scale production, teams often offload the connection management to dedicated gateways or managed services (like **AWS AppSync**, **Pusher**, or **Ably**) to avoid managing stateful connection servers and file descriptor limits on their own backend.
+3.  **Modern Node.js:** The use of PM2 is seeing less usage in containerized (Docker/Kubernetes) environments. In K8s, we typically run one process per container and let K8s handle the replication/load balancing (ReplicaSets), rather than using PM2's cluster mode inside the container. This simplifies signal handling and logs.
+4.  **Heartbeats:** Nginx configuration is still relevant, but modern protocols like HTTP/2 and HTTP/3 (QUIC) have better built-in support for long-lived streams, though sticking to standard keep-alives/pings is still best practice for SSE.

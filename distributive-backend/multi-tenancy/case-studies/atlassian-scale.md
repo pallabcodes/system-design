@@ -136,3 +136,17 @@ Atlassian operates in high-compliance environments (FedRAMP) with strict require
 ## 🔗 Related Documents
 *   [Multi-Tenancy with Spring](multi-tenancy-spring.md) — Application-level implementation
 *   [Cortex: Multi-Tenant Prometheus](cortex-prometheus-scale.md) — Observability at scale
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+The migration to **TiDB** (NewSQL) *is* the modern architecture. Atlassian is ahead of the curve here. Moving from "Sharded Postgres" to "Native Distributed SQL" is the current generational shift.
+
+**Is it scalable?**
+**Yes.** TiDB separates Compute (TiDB) from Storage (TiKV), allowing independent scaling.
+
+**What would the architecture look like today?**
+**It looks like this.**
+*   **Alternatives:** If not TiDB, teams might use **CockroachDB** or **YugabyteDB** (Postgres-compatible).
+*   **Serverless:** The future is "Serverless Database" where you don't even think about "Clusters" or "Nodes" (like **CockroachDB Serverless** or **TiDB Cloud**), but the underlying architecture remains the same.

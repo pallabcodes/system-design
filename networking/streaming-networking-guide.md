@@ -103,3 +103,16 @@ How exactly does P2P work through a corporate NAT?
 *   **Symmetric NAT**: Hostile. New mapping for every different destination IP. **STUN fails here**. You MUST use TURN.
 
 ![P2P NAT Traversal](./assets/p2p_nat_traversal_whiteboard_1768218513384.png)
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+**QUIC (HTTP/3)** is now RFC 9000 and standard. **BBRv3** is available in newer kernels.
+
+**Is it scalable?**
+**Yes.**
+
+**What would the architecture look like today?**
+1.  **WebTransport:** We would use **WebTransport** (built on HTTP/3) instead of WebSockets for modern streaming, as it supports unreliable datagrams (like UDP) from the browser, avoiding Head-of-Line blocking.
+2.  **eBPF for Congestion:** We might run custom congestion control logic in **eBPF** to tune TCP per-flow without recompiling the kernel.

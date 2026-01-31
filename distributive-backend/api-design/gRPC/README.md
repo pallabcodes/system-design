@@ -912,3 +912,12 @@ func TestUserServiceIntegration(t *testing.T) {
 5. **Log errors** for debugging and monitoring
 
 This gRPC implementation provides a complete foundation for building high-performance, scalable, and reliable microservices with modern patterns and best practices.
+
+## Principal Architect's Q&A
+
+**Q: gRPC is a pain for Frontend. Should I use it?**
+
+**A:** Traditionally, yes (gRPC-Web was clunky). But in 2025, **ConnectRPC (by Buf)** has solved this.
+1.  **The Connect Protocol**: It creates an API that is simultaneously gRPC (h2) and standard HTTP/1.1 JSON. Your browser calls it like a normal POST, your backend sees a gRPC request. Best of both worlds.
+2.  **Schema Governance**: Don't just commit `.proto` files to a repo. Use a **Schema Registry** (like Buf Schema Registry). It enforces backward compatibility checks ("Lint for Breaking Changes") before you can merge a PR.
+3.  **Performance**: For purely internal server-to-server traffic, gRPC over HTTP/2 is still 7-10x lighter than JSON over HTTP/1.1.

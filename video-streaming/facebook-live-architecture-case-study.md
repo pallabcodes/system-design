@@ -308,5 +308,39 @@ graph LR
 
     style AI fill:#bbf,stroke:#333
     style JIT fill:#f96,stroke:#333
+    style JIT fill:#f96,stroke:#333
     style SR fill:#bfb,stroke:#333
 ```
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+Yes. In 2015, Facebook chose **RTMP** for ingest because it was the standard. Today, RTMP is considered legacy (flash-based, TCP Head-of-Line blocking).
+*   **Ingest:** Modern systems use **SRT** (Secure Reliable Transport) or **WebRTC** (WHIP) for ingest to avoid TCP/Kernel bottlenecks.
+*   **Delivery:** **CMAF** (Common Media Application Format) with **Low-Latency DASH/HLS** is the current standard, replacing standard HLS.
+
+**Is it scalable?**
+**Yes.** The "Haystack" (storage) and "Katran" (Load Balancing) layers are legendary and still applicable.
+
+**What would the architecture look like today?**
+1.  **QUIC/HTTP3:** We would replace the TCP-based HLS delivery with **QUIC** to eliminate video buffering caused by packet loss (Head-of-Line blocking).
+2.  **Codecs:** Instead of H.264, we would use **AV1** (saving 30-50% bandwidth) if we had the ASIC support (like Google's Argos), or **H.265/HEVC** for Apple devices.
+3.  **Edge Compute:** We would run the transcoding not at the "Origin" but at the "Edge" (using Edge GPUs) to reduce backhaul bandwidth.
+4.  **Real-Time AI Moderation:**
+    *   **The Problem:** You cannot have a human moderator for 1M streams.
+    *   **The Modern Fix:** Run lightweight models (EfficientNet) directly on the **Ingest Edge**. Detect weapons/nudity/copyright within 500ms. If detected, kill the stream before it even reaches the core.
+5.  **Ultra-Low Latency (Sub-Second):** 
+    *   **WebRTC/WHIP**: For "Interactive Live Shopping" or "Gambling/Betting" streams where <500ms is required, we bypass the HLS/DASH segment pipeline entirely and basically run a massive Zoom call (SFU/MCU architecture) scaling via cascading relay nodes.
+
+---
+
+## 🏁 Conclusion: The "Principal" Mindset
+
+Building Facebook Live wasn't about using the "correct" tools (Nginx/FFmpeg). It was about breaking the rules of standard networking when the physics of 100Gbps ingress demanded it.
+
+*   **Junior Engineer**: "Use a Load Balancer."
+*   **Senior Engineer**: "Use HAProxy with consistent hashing."
+*   **Principal Engineer**: "The kernel is the bottleneck. Bypass it with XDP/eBPF and route packets specifically to memory pages that `mmap` directly to the NVMe drives."
+
+To master system design, you must look *below* the application layer. That is where the "God Mode" lives.

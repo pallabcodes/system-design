@@ -182,3 +182,12 @@ return tenantContext.getTenantId() + ":" + params[0];
 > *   **The Schema**: Librarian uses badge to unlock the correct room (Schema).
 > *   **The Observation**: Every book checkout logs the badge color (Observability).
 > *   **The Caching Trap**: If the "quick-access basket" doesn't check badges, Society A's secrets go to Society B.
+
+## Principal Architect's Q&A
+
+**Q: Does Spring Boot 3 + Virtual Threads change how we handle Tenant Context?**
+
+**A:** Crucially, yes.
+1.  **ThreadLocal Limitation**: Virtual Threads (Project Loom) means you might have millions of threads. Storing heavy context in `ThreadLocal` is dangerous (memory footprint).
+2.  **Scoped Values (JEP 429)**: The future is `ScopedValue<TenantId>`. Unlike `ThreadLocal`, Scoped Values are immutable and shared efficiently across child threads. This makes concurrency in multi-tenant apps much safer.
+3.  **Connection Pooling**: With Virtual Threads, you don't block OS threads, so your app can accept 100k requests. But your *Database* still has a limit (e.g., 500 connections). You must implement a "Semaphore" or strict connection borrowing limit per tenant, otherwise one tenant can starve the entire pool.

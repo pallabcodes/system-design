@@ -78,3 +78,12 @@ He shows an `example-job.js` which sets up a specific task (e.g., "Daily Report"
 
 ### Conclusion
 The video concludes with a brief look at the repository structure, including the webhook routes. The instructor shows a trick where pressing the `.` (period) key on a GitHub repository opens the codebase in a browser-based VS Code editor. He then ends the recording to move to the Q&A session.
+
+## Principal Architect's Q&A
+
+**Q: Webhooks seem unreliable. How do I fix that?**
+
+**A:** You need an "Outbox Pattern" or a Relay.
+1.  **Don't send from App**: If your app crashes after DB commit but before sending the webhook, you drift.
+2.  **Standard Webhooks**: Use **Svix** or **Hookdeck** (or build it). You need Retries, Exponential Backoff, and Signature Verification (HMAC-SHA256) so receivers know it's from you.
+3.  **Beyond Webhooks**: For internal microservices, don't use webhooks. Use **EventBridge** or **NATS**. Webhooks are for *external* integrations (calling a customer's server).

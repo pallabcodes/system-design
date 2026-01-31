@@ -60,3 +60,36 @@ Jordan performs a quick demo of Attunity Replicate and a secondary product (Attu
 *   **SAP Pool and Cluster Tables:** A specific question is asked about "pool and cluster tables." Jordan explains that Attunity abstracts the proprietary SAP structures (decoding the logic that requires multiple table joins) and natively replicates them as standard tables immediately upon landing.
 *   **Migration Utility:** The metadata modeling capability comes from a migration utility Attunity purchased years ago that has been vetted in roughly 200 implementations.
 *   **Unstructured Data:** Jordan confirms they can handle semi-structured or unstructured data as long as it has a relational background (like Teradata or DBF).
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+(Note: This file describes Verizon's architecture). The pattern of "CDC -> Hadoop + Hive Micro-batches" is the "2016 Era" architecture. It works but has high latency (5-10 mins) and requires complex "merge" logic.
+
+**Is it scalable?**
+**Yes**, but maintaining a Hive-based warehouse with manual compaction/merging is operationally heavy.
+
+**What would the architecture look like today?**
+1.  **Start with the Lakehouse:** Instead of "Hadoop + Hive", we would land data into **Apache Iceberg** or **Delta Lake** on S3/Azure Blob. These formats handle the "Upserts/Deletes" and "Schema Evolution" natively, eliminating the need for the custom "Attunity Compose" merge logic.
+2.  **Open Source CDC:** Instead of proprietary tools like Attunity (now Qlik), many teams use **Debezium** (Open source) running on Kafka Connect to stream changes from Oracle/SAP directly to the Lakehouse.
+3.  **Real-time querying:** We wouldn't wait 10 minutes. By using **Trino** or **StarRocks** to query the Iceberg tables, data is available for analytics seconds after the transaction occurs.
+
+## Principal Architect's Q&A
+
+**Q: Should I pay for Attunity/Qlik or use Debezium?**
+
+**A:** It depends on your source.
+1.  **Mainframe/SAP**: Pay for **Qlik (Attunity)**. Debezium's support for ancient DB2/mainframe logs is shaky. Attunity has successfully parsed these for 20 years.
+2.  **Postgres/MySQL**: Use **Debezium**. It's the industry standard, free, and runs on Kafka Connect.
+3.  **The "Merge" Problem**: Don't write custom Spark jobs to "Merge" updates (the 2016 way). Use **Apache Hudi** or **Iceberg**. They handle the "Upsert" logic natively on S3 on-write.
+
+
+## Principal Architect's Q&A
+
+**Q: Should I pay for Attunity/Qlik or use Debezium?**
+
+**A:** It depends on your source.
+1.  **Mainframe/SAP**: Pay for **Qlik (Attunity)**. Debezium's support for ancient DB2/mainframe logs is shaky. Attunity has successfully parsed these for 20 years.
+2.  **Postgres/MySQL**: Use **Debezium**. It's the industry standard, free, and runs on Kafka Connect.
+3.  **The "Merge" Problem**: Don't write custom Spark jobs to "Merge" updates (the 2016 way). Use **Apache Hudi** or **Iceberg**. They handle the "Upsert" logic natively on S3 on-write.

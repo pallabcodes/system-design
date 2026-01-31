@@ -81,3 +81,27 @@ The speaker addresses why Twitter forks code rather than contributing back immed
 *   **Replication:** Proxies can be configured to write to multiple replicas and read from one or both (with repair logic).
 *   **Failure Handling:** They use a tiered approach. If a primary rack fails, traffic shifts to a backup tier (e.g., a "spillover pool") with short TTLs to absorb the load until the primary returns.
 *   **Cost Management:** Project owners are generally responsible for their own caching strategy, but the cache team works closely with large users (500+ nodes) to optimize usage. They discourage caching items that are only visited once.
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+The problems (Timeline fan-out, GC pauses) are timeless. However, the custom "Twemproxy" solution has mostly been superseded by **Redis Cluster** (standardized in Redis 3.0) or service-mesh sidecars (Envoy) that handle sharding logic transparently. Twitter itself moved many persistent use cases to **Manhattan** (internal KV store) and **Pelikan** (unified cache).
+
+**Is it scalable?**
+**Yes.** Use of simple, sharded instances is the definition of horizontal scale.
+*   **Limitation:** Managing thousands of independent Redis instances is operationally expensive ("N-squared" problem mentioned).
+
+**What would the architecture look like today?**
+1.  **Redis Cluster / managed services:** Today, we'd use **Redis Cluster** for automatic sharding and failover, or fully managed services like **Amazon ElastiCache** or **Redis Enterprise** which handle the "Cluster Management" layer that Twitter had to build themselves.
+2.  **Tiered Storage:** Instead of "Hybrid Lists" for memory efficiency, modern Redis Enterprise offers **Redis on Flash** (SSD extension) or **DragonflyDB** (multi-threaded, high efficiency) to store TBs of data on a single instance without the fork hacks.
+3.  **Rust Proxies:** If building a custom proxy today (Volta), engineers favor **Rust** (memory safety, no GC pauses) over C/C++ or Java. Twitter's "Pelikan" cache framework is an example of this modernization.
+
+## Principal Architect's Q&A
+
+**Q: Should I use Redis as a primary database?**
+
+**A:** **No.** (With nuances).
+1.  **Durability Risk**: Even with AOF (Append Only File), fsync settings often trade durability for speed. A power cycle can lose 1 second of data.
+2.  **Memory Cost**: RAM is expensive. Storing TBs of data in RAM is bad economics. Use **SSDB** or **Redis on Flash** if you must.
+3.  **Better Options**: If you need a fast KV store with persistence, use **ScyllaDB** (C++ Cassandra) or **FoundationDB**. Use Redis for ephemeral cache and rate limiting only.

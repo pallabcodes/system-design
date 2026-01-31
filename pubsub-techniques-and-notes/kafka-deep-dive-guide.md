@@ -1357,3 +1357,16 @@ You have hit the nail on the head. To pass the Principal Architect scrutiny, kee
 > *   **Connector (Sink)** is the **Pen & Paper** (Allows writing the summary to a shared notebook, email, or sticky note).
 
 ---
+
+Q: This architecture is from five years ago. Has it changed? Is it still scallable? What would the architecture look like today?
+
+A:
+**Has it changed?**
+Yes. **KRaft** (Kafka Raft) mode is now the default, removing the ZooKeeper dependency. **Tiered Storage** (KIP-405) is now available, allowing infinite storage on S3.
+
+**Is it scalable?**
+**Yes.** Kafka is the definition of scale.
+
+**What would the architecture look like today?**
+1.  **Tiered Storage:** We would enable **Tiered Storage** so that brokers only keep ~4 hours of data on NVMe SSDs, and everything else is offloaded to S3. This allows us to retain data for years cheaply without adding more brokers.
+2.  **Kubernetes:** We would run Kafka on Kubernetes using the **Strimzi Operator** or **Confluent Operator** for automated Day 2 operations (rolling upgrades, rebalancing).

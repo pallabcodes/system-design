@@ -109,3 +109,13 @@ Store **every change** forever. The current state is derived by replaying the lo
 ## 🔗 Related Documents
 *   [Saga Pattern](../database/saga/saga-pattern-guide.md) — Orchestrating async workflows.
 *   [Kafka at Scale](../multi-tenancy/kafka-at-scale-guide.md) — The Message Transport.
+
+## Principal Architect's Q&A
+
+**Q: In 2025, with fast 100GbE networks, do we still need complex async queues? Can't we just make sync calls?**
+
+**A:** Faster networks like 100GbE and 5G do *not* solve the fundamental problem of **temporal coupling**.
+
+1.  **Latency vs. Availability**: Even with infinite bandwidth, if Service B is down, Service A still fails in a synchronous model. Async queues are about *availability*, not just throughput.
+2.  **Backpressure is Critical**: In hyper-scale systems (like Uber/DoorDash), spikes are 10x-100x normal load. Without a queue to buffer these spikes (Shock Absorber pattern), your database will melt down regardless of network speed.
+3.  **Modern tooling**: We are seeing a move away from "dumb pipes" (basic RabbitMQ) to **Streaming Data Platforms** (Redpanda, WarpStream) where the queue is also the storage. Also, **Structured Concurrency** (in Java 21+ and Swift) has made writing async code feel linear, removing the "callback hell" complexity argument.
